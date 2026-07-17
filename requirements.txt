@@ -1,0 +1,3 @@
+pandas
+fg-data-profiling
+setuptools<82
