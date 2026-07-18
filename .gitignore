@@ -1,5 +1,7 @@
 # data/ folder
 data/
+processed_data/
+reports/
 
 # --- Gitignore template for Python projects ---
 # Byte-compiled / optimized / DLL files
