@@ -2,6 +2,7 @@
 data/
 processed_data/
 reports/
+clean_data/
 
 # --- Gitignore template for Python projects ---
 # Byte-compiled / optimized / DLL files
