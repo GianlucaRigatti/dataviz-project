@@ -1,5 +1,8 @@
 # data/ folder
 data/
+processed_data/
+reports/
+clean_data/
 
 # technical_report/ data folders
 technical_report/img/
