@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 from data_profiling import ProfileReport
 
-DATA_DIR = Path("../data")
+DATA_DIR = Path("../data/cleaned")
 REPORT_DIR = Path("reports")
 
 

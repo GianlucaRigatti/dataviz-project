@@ -1,6 +1,10 @@
 # data/ folder
 data/
 
+# technical_report/ data folders
+technical_report/img/
+technical_report/reports/
+
 # --- Gitignore template for Python projects ---
 # Byte-compiled / optimized / DLL files
 __pycache__/
