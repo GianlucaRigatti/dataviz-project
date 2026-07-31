@@ -17,6 +17,9 @@ def main() -> None:
     # Get all CSV files in the data/ directory
     csv_files = sorted(DATA_DIR.glob("*.csv"))
 
+    # Remove the '4_*' files from the list
+    csv_files = [f for f in csv_files if not f.name.startswith("4_")]
+
     if not csv_files:
         print(f"No CSV files found in '{DATA_DIR}'.")
         return

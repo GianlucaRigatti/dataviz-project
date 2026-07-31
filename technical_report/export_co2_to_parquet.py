@@ -1,10 +1,10 @@
 from pathlib import Path
 from pyspark.sql import SparkSession
 
-PROCESSED_DATA_DIR = Path("../processed_data")
+PROCESSED_DATA_DIR = Path("../data")
 PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-CLEAN_DATA_DIR = Path("../clean_data")
+CLEAN_DATA_DIR = Path("../data/cleaned")
 CLEAN_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 spark = SparkSession.builder \
@@ -48,7 +48,7 @@ df_only_eu = df.filter(df["member_state"].isin(eu27_2020))
 
 df_only_eu.write.mode("overwrite") \
     .option("compression", "gzip") \
-    .parquet(f"{CLEAN_DATA_DIR}/4_eea_co2_emissions_from_passenger_cars-001.parquet")
+    .parquet(f"{CLEAN_DATA_DIR}/4c_eea_co2_emissions_from_passenger_cars-001.parquet")
 
 df.write.mode("overwrite") \
     .option("compression", "gzip") \
