@@ -13,7 +13,7 @@ spark = SparkSession.builder \
     .config("spark.driver.memory", "16g") \
     .getOrCreate()
 
-cols = ["Country", "VFN", "Mh", "T", "Va", "Ve", "Mk", "Cn", "m (kg)", "Ewltp (g/km)", "Ft", "Fm", "ec (cm3)", "ep (KW)", "z (Wh/km)", "year"]
+cols = ["Country", "VFN", "Mh", "T", "Va", "Ve", "Mk", "Cn", "m (kg)", "Ewltp (g/km)", "Ft", "Fm", "ec (cm3)", "ep (KW)", "z (Wh/km)", "year", "r"]
 
 column_mapping = {
     "Country": "member_state",
@@ -31,6 +31,7 @@ column_mapping = {
     "ec (cm3)": "engine_capacity (cm3)",
     "ep (KW)": "engine_power (KW)",
     "z (Wh/km)": "electric_energy_consumption (Wh/km)",
+    "r": "registrations"
 }
 
 csv_name = "4_eea_co2_emissions_from_passenger_cars-001.csv"
