@@ -3,3 +3,4 @@ fg-data-profiling
 setuptools<82
 pyspark
 pyarrow
+country-converter
