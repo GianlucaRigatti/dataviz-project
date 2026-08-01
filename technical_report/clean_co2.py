@@ -12,7 +12,7 @@ if __name__ == "__main__":
     df = spark.read.parquet(f"{PROCESSED_DATA_DIR}/4_eea_co2_emissions_from_passenger_cars-001.parquet")
 
     column_mapping = {
-        "Country": "member_state",
+        "Country": "geo",
         "VFN": "vehicle_family_id_number",
         "Mh": "manufacturer_name_eu_standard_denomination",
         "T": "type",
@@ -22,12 +22,13 @@ if __name__ == "__main__":
         "Cn": "commercial_name",
         "m (kg)": "mass_in_running_order (kg)",
         "Ewltp (g/km)": "co2_emissions_WLTP (g/km)",
-        "Ft": "fuel_type",
+        "Ft": "Motor energy",
         "Fm": "fuel_mode",
         "ec (cm3)": "engine_capacity (cm3)",
         "ep (KW)": "engine_power (KW)",
         "z (Wh/km)": "electric_energy_consumption (Wh/km)",
-        "r": "registrations"
+        "r": "registrations",
+        "year": "TIME_PERIOD"
     }
 
     for old_col, new_col in column_mapping.items():
@@ -36,14 +37,13 @@ if __name__ == "__main__":
     eu27_2020 = ['BE', 'BG', 'CZ', 'DK', 'DE', 'EE', 'IE', 'EL', 'ES', 'FR', 'HR', 'IT', 'CY', 'LV', 'LT', 'LU', 'HU', 'MT', 'NL', 'AT', 'PL', 'PT', 'RO', 'SI', 'SK', 'FI', 'SE']
     country_dict = {code: coco.convert(names=code, to='name_short', not_found=None) for code in eu27_2020}
 
-    df = df.filter(df["member_state"].isin(eu27_2020))
-
+    df = df.filter(df["geo"].isin(eu27_2020))
 
     num_cols = [
         "mass_in_running_order (kg)", "co2_emissions_WLTP (g/km)", 
         "engine_capacity (cm3)", "engine_power (KW)", "electric_energy_consumption (Wh/km)"
     ]
-    str_cols = ["member_state", "make", "commercial_name", "fuel_type", "fuel_mode"]
+    str_cols = ["geo", "commercial_name", "Motor energy"]
     all_cols = str_cols + num_cols
 
 
@@ -51,21 +51,21 @@ if __name__ == "__main__":
     not_needed = ["vehicle_family_id_number", "version", "make", "fuel_mode", "type", "variant"]
     df = df.drop(*not_needed)
 
-    df = df.withColumn("fuel_type", 
-        F.regexp_replace(F.trim(F.lower(F.col("fuel_type"))), "-", "/")
+    df = df.withColumn("Motor energy", 
+        F.regexp_replace(F.trim(F.lower(F.col("Motor energy"))), "-", "/")
     )
 
     unnecessary = ["unknown", "other"]
-    df = df.filter(~df.fuel_type.isin(unnecessary))
+    df = df.filter(~df["Motor energy"].isin(unnecessary))
 
     df = df.withColumn(
-        "fuel_type",
-        F.when(F.col("fuel_type") == "electric", "Electricity")
-         .when(F.col("fuel_type") == "petrol phev", "Petrol plug-in Hybrid")
-         .when(F.col("fuel_type").isin("petrol/electric", "hybrid/petrol/e"), "Petrol hybrid")
-         .when(F.col("fuel_type") == "diesel/electric", "Diesel hybrid")
-         .when(F.col("fuel_type") == "petrol", "Petrol (excluding hybrids)")
-         .when(F.col("fuel_type") == "diesel", "Diesel (excluding hybrids)")
+        "Motor energy",
+        F.when(F.col("Motor energy") == "electric", "Electricity")
+         .when(F.col("Motor energy") == "petrol phev", "Petrol plug-in Hybrid")
+         .when(F.col("Motor energy").isin("petrol/electric", "hybrid/petrol/e"), "Petrol hybrid")
+         .when(F.col("Motor energy") == "diesel/electric", "Diesel hybrid")
+         .when(F.col("Motor energy") == "petrol", "Petrol (excluding hybrids)")
+         .when(F.col("Motor energy") == "diesel", "Diesel (excluding hybrids)")
          .otherwise("Alternative/Other") 
     )
 
@@ -130,9 +130,6 @@ if __name__ == "__main__":
     grouping_columns = [col for col in df.columns if col != "registrations"]
     df = df.groupBy(*grouping_columns) \
                    .agg(F.sum("registrations").alias("registrations"))
-    df = df.withColumnRenamed("member_state", "geo") \
-                           .withColumnRenamed("fuel_type", "Motor energy") \
-                           .withColumnRenamed("year", "TIME_PERIOD")
 
     mapping_expr = F.create_map([F.lit(x) for x in chain(*country_dict.items())])
     df = df.withColumn("Geopolitical entity (reporting)", mapping_expr[F.col("geo")])
@@ -156,4 +153,4 @@ if __name__ == "__main__":
 
     df.write.mode("overwrite") \
         .option("compression", "gzip") \
-        .parquet(f"{CLEANED_DATA_DIR}/4_eea_co2_emissions_from_passenger_cars-001.parquet")
+        .parquet(f"{CLEANED_DATA_DIR}/4c_eea_co2_emissions_from_passenger_cars-001.parquet")
