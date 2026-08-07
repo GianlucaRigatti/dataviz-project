@@ -30,7 +30,7 @@ class MainView:
                 },
                 children=dmc.Stack(
                     [
-                        dmc.Stack(self.render_nav_links(mobile=True), gap="xs"),
+                        dmc.Stack(self.render_nav_links(mobile=True), mt="sm"),
                         dmc.Group(
                             [
                                 dmc.Anchor(
@@ -73,7 +73,7 @@ class MainView:
                 children=dmc.Stack(
                     id="filters-controls-mobile",
                     children=[
-                        dmc.Text("Filters Controls Here", size="lg")
+                        dmc.Text("Filters Controls Here", size="lg", mt="sm")
                     ]
                 ),
             ),
@@ -95,10 +95,19 @@ class MainView:
                                     dmc.Burger(
                                         id="nav-burger",
                                         opened=False,
-                                        hiddenFrom="md",
+                                        hiddenFrom="sm",
                                         size="sm"
                                     ),
-                                    dmc.Text(self.settings.app_name, size="xl"),
+                                    dmc.Group(
+                                        [
+                                            DashIconify(
+                                                icon="tabler:layout-dashboard",
+                                                width=24,
+                                            ),
+                                            dmc.Text(self.settings.app_name, size="xl"),
+                                        ],
+                                        gap="xs",
+                                    )
                                 ]),
 
                                 dmc.Group(
@@ -106,14 +115,15 @@ class MainView:
                                         dmc.Group([
                                             dmc.Group(
                                                 self.render_nav_links(mobile=False),
-                                                visibleFrom="md",
+                                                gap="xs",
+                                                visibleFrom="sm",
                                             ),
                                             dmc.ActionIcon(
                                                 DashIconify(icon="tabler:filter", width=24),
                                                 id="filters-toggle-btn",
                                                 variant="filled",
                                                 color="blue.6",
-                                                hiddenFrom="md",
+                                                hiddenFrom="sm",
                                                 size="lg",
                                             )
                                         ]),
@@ -138,11 +148,11 @@ class MainView:
                                                     size="lg",
                                                 ),
                                             ],
-                                            visibleFrom="md",
+                                            visibleFrom="sm",
                                             gap="xs",
                                         ),
                                     ],
-                                    gap="xl"
+                                    gap="lg"
                                 ),
                             ]
                         )
@@ -151,7 +161,7 @@ class MainView:
                     # Filters (Desktop)
                     dmc.AppShellAside(
                         p="md",
-                        visibleFrom="md",
+                        visibleFrom="sm",
                         children=dmc.Stack(
                             id="filters-controls-desktop",
                             children=[
@@ -201,10 +211,12 @@ class MainView:
                         dmc.Button(
                             link["label"],
                             leftSection=DashIconify(icon=link["icon"], width=20),
-                            variant="subtle",
+                            # variant="subtle", has no glow only hover
+                            variant="light",
                             color=color,
                             fullWidth=True,
                             justify="start",
+                            px="xs",
                         ),
                         href=link["href"],
                         underline=False,

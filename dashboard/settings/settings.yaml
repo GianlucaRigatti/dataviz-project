@@ -1,4 +1,4 @@
-app_name: "Power train Lens"
+app_name: "Dashboard"
 debug: true
 server:
   host: "0.0.0.0"

@@ -5,10 +5,10 @@ from views.main_view import MainView
 class MainController:
     def __init__(self):
         self.nav_links = [
-            {"label": "Overview", "href": "/", "icon": "tabler:layout-dashboard"},
+            {"label": "Overview", "href": "/", "icon": "tabler:trending-up-down"},
             {"label": "Geo", "href": "/geo", "icon": "tabler:world"},
-            {"label": "Market Volume", "href": "/market-volume", "icon": "tabler:chart-bar"},
-            {"label": "About", "href": "/about", "icon": "tabler:users"},
+            {"label": "Market Volume", "href": "/market-volume", "icon": "tabler:car"},
+            # {"label": "About", "href": "/about", "icon": "tabler:users"},
         ]
 
         self.view = MainView(self.nav_links)
