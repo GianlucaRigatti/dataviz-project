@@ -1,5 +1,6 @@
-app_name: "Dashboard"
+app_name: "Power train Lens"
 debug: true
 server:
   host: "0.0.0.0"
   port: 8050
+data_path: "../data/cleaned/4c_eea_co2_emissions_from_passenger_cars-001.parquet"

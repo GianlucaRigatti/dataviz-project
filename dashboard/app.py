@@ -1,12 +1,16 @@
+import dash_mantine_components as dmc
 from dash import Dash
 from settings.settings import get_settings
 from controllers.main_controller import MainController
 
 settings = get_settings()
 
-app = Dash(__name__)
+app = Dash(
+    __name__,
+    external_stylesheets=dmc.styles.ALL
+)
 
-app.layout = MainController().layout()
+app.layout = dmc.MantineProvider(MainController().layout())
 app.title = settings.app_name
 
 if __name__ == '__main__':

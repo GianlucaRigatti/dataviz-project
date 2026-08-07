@@ -1,9 +1,215 @@
-from dash import html
+import dash_mantine_components as dmc
+from dash_iconify import DashIconify
+
+from settings.settings import get_settings
+
 
 class MainView:
+    def __init__(self, nav_links):
+        self.nav_links = nav_links
+        self.settings = get_settings()
 
-    def create_layout(self):
-        return html.Div([
-            html.H1("Welcome to the Dashboard"),
-            html.P("This is the main view of the dashboard."),
+    def build(self):
+
+        return dmc.Box([
+
+            # Navigation (Mobile)
+            dmc.Drawer(
+                id="nav-drawer",
+                title=dmc.Group(
+                    [
+                        DashIconify(icon="tabler:menu-2", width=20),
+                        dmc.Text("Pages", size="lg"),
+                    ]
+                ),
+                position="left",
+                size="80%",
+                styles={
+                    "content": {"display": "flex", "flexDirection": "column"},
+                    "body": {"flex": 1, "display": "flex", "flexDirection": "column"},
+                },
+                children=dmc.Stack(
+                    [
+                        dmc.Stack(self.render_nav_links(mobile=True), gap="xs"),
+                        dmc.Group(
+                            [
+                                dmc.Anchor(
+                                    dmc.ActionIcon(
+                                        DashIconify(icon="tabler:brand-github", width=20),
+                                        variant="light",
+                                        color="grape.6",
+                                        size="lg",
+                                    ),
+                                    href="https://github.com/GianlucaRigatti/dataviz-project",
+                                    underline=False,
+                                ),
+                                dmc.ColorSchemeToggle(
+                                    lightIcon=DashIconify(icon="tabler:sun", width=20),
+                                    darkIcon=DashIconify(icon="tabler:moon-stars", width=20),
+                                    variant="light",
+                                    color="yellow.6",
+                                    size="lg",
+                                ),
+                            ],
+                            gap="xs"
+                        ),
+                    ],
+                    justify="space-between",
+                    flex=1
+                ),
+            ),
+
+            # Filters (Mobile)
+            dmc.Drawer(
+                id="filters-drawer",
+                title=dmc.Group(
+                    [
+                        DashIconify(icon="tabler:filter", width=20),
+                        dmc.Text("Filters", size="lg"),
+                    ]
+                ),
+                position="right",
+                size="80%",
+                children=dmc.Stack(
+                    id="filters-controls-mobile",
+                    children=[
+                        dmc.Text("Filters Controls Here", size="lg")
+                    ]
+                ),
+            ),
+
+            dmc.AppShell(
+                id="app-shell",
+                header={"height": 60},
+                aside={"width": 300, "breakpoint": "md", "collapsed": {"mobile": True}},
+                children=[
+
+                    # Top Bar
+                    dmc.AppShellHeader(
+                        dmc.Group(
+                            justify="space-between",
+                            h="100%",
+                            px="md",
+                            children=[
+                                dmc.Group([
+                                    dmc.Burger(
+                                        id="nav-burger",
+                                        opened=False,
+                                        hiddenFrom="md",
+                                        size="sm"
+                                    ),
+                                    dmc.Text(self.settings.app_name, size="xl"),
+                                ]),
+
+                                dmc.Group(
+                                    [
+                                        dmc.Group([
+                                            dmc.Group(
+                                                self.render_nav_links(mobile=False),
+                                                visibleFrom="md",
+                                            ),
+                                            dmc.ActionIcon(
+                                                DashIconify(icon="tabler:filter", width=24),
+                                                id="filters-toggle-btn",
+                                                variant="filled",
+                                                color="blue.6",
+                                                hiddenFrom="md",
+                                                size="lg",
+                                            )
+                                        ]),
+
+                                        dmc.Group(
+                                            [
+                                                dmc.Anchor(
+                                                    dmc.ActionIcon(
+                                                        DashIconify(icon="tabler:brand-github", width=20),
+                                                        variant="light",
+                                                        color="grape.6",
+                                                        size="lg",
+                                                    ),
+                                                    href="https://github.com/GianlucaRigatti/dataviz-project",
+                                                    underline=False,
+                                                ),
+                                                dmc.ColorSchemeToggle(
+                                                    lightIcon=DashIconify(icon="tabler:sun", width=20),
+                                                    darkIcon=DashIconify(icon="tabler:moon-stars", width=20),
+                                                    variant="light",
+                                                    color="yellow.6",
+                                                    size="lg",
+                                                ),
+                                            ],
+                                            visibleFrom="md",
+                                            gap="xs",
+                                        ),
+                                    ],
+                                    gap="xl"
+                                ),
+                            ]
+                        )
+                    ),
+
+                    # Filters (Desktop)
+                    dmc.AppShellAside(
+                        p="md",
+                        visibleFrom="md",
+                        children=dmc.Stack(
+                            id="filters-controls-desktop",
+                            children=[
+                                dmc.Text("Filters Controls Here", size="lg")
+                            ]
+                        ),
+                    ),
+
+                    # Content
+                    dmc.AppShellMain(
+                        children=[
+                            dmc.Box(
+                                p="md",
+                                children=[
+                                    dmc.Text("Dashboard content goes here", size="lg"),
+                                ]
+                            )
+                        ]
+                    )
+
+                ]
+            )
+
         ])
+
+    def render_nav_links(self, mobile, color="blue.6") -> list[dmc.Anchor]:
+        match mobile:
+            case True:
+                return [
+                    dmc.Anchor(
+                        dmc.Group(
+                            [
+                                DashIconify(icon=link["icon"], width=20),
+                                dmc.Text(link["label"], size="lg"),
+                            ],
+                            gap="xs",
+                            align="center",
+                        ),
+                        href=link["href"],
+                        underline=False,
+                        c=color,
+                    ) for link in self.nav_links
+                ]
+            case False:
+                return [
+                    dmc.Anchor(
+                        dmc.Button(
+                            link["label"],
+                            leftSection=DashIconify(icon=link["icon"], width=20),
+                            variant="subtle",
+                            color=color,
+                            fullWidth=True,
+                            justify="start",
+                        ),
+                        href=link["href"],
+                        underline=False,
+                    )
+                    for link in self.nav_links
+                ]
+        
+        

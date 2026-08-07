@@ -1,2 +1,6 @@
 dash
 pyyaml
+pandas
+# dash-ag-grid
+dash-mantine-components
+dash-iconify
