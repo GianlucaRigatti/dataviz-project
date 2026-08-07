@@ -1,5 +1,6 @@
-import dash_mantine_components as dmc
+from dash import dcc
 from dash_iconify import DashIconify
+import dash_mantine_components as dmc
 
 from settings.settings import get_settings
 
@@ -12,8 +13,7 @@ class MainView:
     def build(self):
 
         return dmc.Box([
-
-            # Navigation (Mobile)
+            dcc.Location(id="url", refresh=False),
             dmc.Drawer(
                 id="nav-drawer",
                 title=dmc.Group(
@@ -59,7 +59,7 @@ class MainView:
                 ),
             ),
 
-            # Filters (Mobile)
+            # filters-controls-mobile
             dmc.Drawer(
                 id="filters-drawer",
                 title=dmc.Group(
@@ -70,12 +70,7 @@ class MainView:
                 ),
                 position="right",
                 size="80%",
-                children=dmc.Stack(
-                    id="filters-controls-mobile",
-                    children=[
-                        dmc.Text("Filters Controls Here", size="lg", mt="sm")
-                    ]
-                ),
+                children=dmc.Stack(id="filters-controls-mobile"),
             ),
 
             dmc.AppShell(
@@ -84,7 +79,6 @@ class MainView:
                 aside={"width": 300, "breakpoint": "md", "collapsed": {"mobile": True}},
                 children=[
 
-                    # Top Bar
                     dmc.AppShellHeader(
                         dmc.Group(
                             justify="space-between",
@@ -158,28 +152,16 @@ class MainView:
                         )
                     ),
 
-                    # Filters (Desktop)
+                    # filters-controls-desktop
                     dmc.AppShellAside(
                         p="md",
                         visibleFrom="sm",
-                        children=dmc.Stack(
-                            id="filters-controls-desktop",
-                            children=[
-                                dmc.Text("Filters Controls Here", size="lg")
-                            ]
-                        ),
+                        children=dmc.Stack(id="filters-controls-desktop")
                     ),
 
-                    # Content
+                    # main-content-container
                     dmc.AppShellMain(
-                        children=[
-                            dmc.Box(
-                                p="md",
-                                children=[
-                                    dmc.Text("Dashboard content goes here", size="lg"),
-                                ]
-                            )
-                        ]
+                        children=dmc.Box(id="main-content-container", p="md")
                     )
 
                 ]
@@ -223,5 +205,3 @@ class MainView:
                     )
                     for link in self.nav_links
                 ]
-        
-        
