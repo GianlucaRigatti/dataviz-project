@@ -89,7 +89,7 @@ class MainView:
                                     dmc.Burger(
                                         id="nav-burger",
                                         opened=False,
-                                        hiddenFrom="sm",
+                                        hiddenFrom="md",
                                         size="sm"
                                     ),
                                     dmc.Group(
@@ -110,14 +110,14 @@ class MainView:
                                             dmc.Group(
                                                 self.render_nav_links(mobile=False),
                                                 gap="xs",
-                                                visibleFrom="sm",
+                                                visibleFrom="md",
                                             ),
                                             dmc.ActionIcon(
                                                 DashIconify(icon="tabler:filter", width=24),
                                                 id="filters-toggle-btn",
                                                 variant="filled",
                                                 color="blue.6",
-                                                hiddenFrom="sm",
+                                                hiddenFrom="md",
                                                 size="lg",
                                             )
                                         ]),
@@ -142,7 +142,7 @@ class MainView:
                                                     size="lg",
                                                 ),
                                             ],
-                                            visibleFrom="sm",
+                                            visibleFrom="md",
                                             gap="xs",
                                         ),
                                     ],
@@ -155,7 +155,7 @@ class MainView:
                     # filters-controls-desktop
                     dmc.AppShellAside(
                         p="md",
-                        visibleFrom="sm",
+                        visibleFrom="md",
                         children=dmc.Stack(id="filters-controls-desktop")
                     ),
 
