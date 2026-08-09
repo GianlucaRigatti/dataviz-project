@@ -26,7 +26,7 @@ The central question guiding our analysis is:
 ## Repository Structure
 
 > [!IMPORTANT]
-> The [`dashboard/README.md`](dashboard/README.md) and [`technical_report/README.md`](technical_report/README.md) files contain detailed instructions on how to run the dashboard and reproduce the analyses.
+> See [`dashboard/README.md`](dashboard/README.md) for instructions on running the dashboard and [`technical_report/README.md`](technical_report/README.md) for informations on the preprocessing steps and analyses carried out for the technical report deliverable.
 
 ```text
 .
@@ -34,7 +34,7 @@ The central question guiding our analysis is:
 │   └── 📄 README.md
 ├── 📂 data/                # Raw datasets
 │   └── 📂 cleaned/         # Preprocessed datasets
-├── 📂 technical_report/    # Preprocessing and analysis scripts for the technical report deliverable
+├── 📂 technical_report/    # Preprocessing and analysis scripts
 │   └── 📄 README.md
 └── 📄 README.md
 ```
