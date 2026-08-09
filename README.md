@@ -5,6 +5,7 @@
 Developed by Gianluca Rigatti and Giuseppe Screnci for the *Data Visualisation Lab* course.
 
 ![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-306998?style=for-the-badge&logo=python&logoColor=white)
+![fg-data-profiling](https://img.shields.io/badge/fg--data--profiling-10B981?style=for-the-badge&logo=python&logoColor=white)
 ![PySpark](https://img.shields.io/badge/PySpark-F29111?style=for-the-badge&logo=apachespark&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-0EA5E9?style=for-the-badge&logo=docker&logoColor=white)
 ![Dash|Plotly](https://img.shields.io/badge/Dash|Plotly-0F172A?style=for-the-badge&logo=plotly&logoColor=white)
