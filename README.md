@@ -26,7 +26,7 @@ The central question guiding our analysis is:
 ## Repository Structure
 
 > [!IMPORTANT]
-> See [`dashboard/README.md`](dashboard/README.md) for instructions on running the dashboard and [`technical_report/README.md`](technical_report/README.md) for informations on the preprocessing steps and analyses carried out for the technical report deliverable.
+> See [`📄 dashboard/README.md`](dashboard/README.md) for instructions on running the dashboard and [`📄 technical_report/README.md`](technical_report/README.md) for informations on the preprocessing steps and analyses carried out for the technical report deliverable.
 
 ```text
 .
