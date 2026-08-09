@@ -4,7 +4,7 @@ This directory contains the notebooks and scripts used for the data preprocessin
 
 ## 🚀 Getting Started
 
-### Prerequisites
+### ⚙️ Prerequisites
 
 > [!IMPORTANT]
 > This project requires **Python 3.11+**.
@@ -30,8 +30,6 @@ This directory contains the notebooks and scripts used for the data preprocessin
    pip install -r requirements.txt
    ```
 
-
-
 ### 🗃️ Datasets
 
 > [!IMPORTANT]
@@ -42,13 +40,11 @@ This directory contains the notebooks and scripts used for the data preprocessin
 3. [UNECE - New passenger car registrations by fuel type (detailed)](https://w3.unece.org/PXWeb2015/pxweb/en/STAT/STAT__40-TRTRANS__03-TRRoadFleet/09_en_TRRoadNewPasVh_r.px/)
 4. [EEA - Monitoring of CO2 emissions from passenger cars Regulation (EU) 2019/631](https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c9b3267c02b)
 
-### Note on computational resources
-
 ## 📂 Directory Structure
 
 | File / Directory | Description |
 | :--- | :--- |
-| 📁 **`img/`** | Figures generated for the technical report deliverable. |
-| 📁 **`reports/`** | Output directory for dataset reports generated using `fg-data-profiling`. |
+| 📁&nbsp;**`img/`** | Figures generated for the technical report deliverable. |
+| 📁&nbsp;**`reports/`** | Output directory for dataset reports generated using [`fg-data-profiling`](https://github.com/data-centric-ai-community/fg-data-profiling). |
 | 🪐&nbsp;**`1_dataset_analysis_eurostat_new_passenger_cars_by_type_of_motor_energy_and_engine_size.ipynb`**<br>🪐&nbsp;**`2_dataset_analysis_eurostat_new_passenger_cars_by_type_of_motor_energy.ipynb`**<br>🪐&nbsp;**`3_dataset_analysis_unece_new_passenger_car_registrations_by_fuel_type_(detailed).ipynb`**<br>🪐&nbsp;**`4_dataset_graphing_eea_co2_emissions_from_passenger_cars.ipynb`** | Notebooks covering dataset description and preprocessing for the Eurostat, UNECE, and EEA datasets. Generate the clean (`c`) datasets in the `data/cleaned` folder. |
 | 🪐&nbsp;

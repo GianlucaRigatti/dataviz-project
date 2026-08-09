@@ -14,7 +14,7 @@ Developed by Gianluca Rigatti and Giuseppe Screnci for the *Data Visualisation L
 
 </div>
 
-## 📌 Overview
+## 🌱🚗 Overview
 
 This project aims to develop a data visualisation solution for exploring the evolution of new passenger car registrations in Europe, with a particular focus on the transition towards more sustainable power train technologies.
 
