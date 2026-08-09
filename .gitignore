@@ -4,8 +4,10 @@ data/cleaned/*
 !data/.gitkeep
 !data/cleaned/.gitkeep
 
-technical_report/img/
-technical_report/reports/
+technical_report/img/*
+!technical_report/img/.gitkeep
+technical_report/reports/*
+!technical_report/reports/.gitkeep
 
 # --- Gitignore template for Python projects ---
 # Byte-compiled / optimized / DLL files
