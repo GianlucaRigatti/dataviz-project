@@ -50,5 +50,5 @@ This directory contains the notebooks and scripts used for the data preprocessin
 | :--- | :--- |
 | 📁 **`img/`** | Figures generated for the technical report deliverable. |
 | 📁 **`reports/`** | Output directory for dataset reports generated using `fg-data-profiling`. |
-| 🪐 **`1_dataset_analysis_eurostat_new_passenger_cars_by_type_of_motor_energy_and_engine_size.ipynb`**<br>🪐 **`2_dataset_analysis_eurostat_new_passenger_cars_by_type_of_motor_energy.ipynb`**<br>🪐 **`3_dataset_analysis_unece_new_passenger_car_registrations_by_fuel_type_(detailed).ipynb`**<br>🪐 **`4_dataset_graphing_eea_co2_emissions_from_passenger_cars.ipynb`** | Notebooks covering dataset description and preprocessing for the Eurostat, UNECE, and EEA datasets. Generate the clean (`c`) datasets in the `data/cleaned` folder. |
-| 🪐  
+| 🪐&nbsp;**`1_dataset_analysis_eurostat_new_passenger_cars_by_type_of_motor_energy_and_engine_size.ipynb`**<br>🪐&nbsp;**`2_dataset_analysis_eurostat_new_passenger_cars_by_type_of_motor_energy.ipynb`**<br>🪐&nbsp;**`3_dataset_analysis_unece_new_passenger_car_registrations_by_fuel_type_(detailed).ipynb`**<br>🪐&nbsp;**`4_dataset_graphing_eea_co2_emissions_from_passenger_cars.ipynb`** | Notebooks covering dataset description and preprocessing for the Eurostat, UNECE, and EEA datasets. Generate the clean (`c`) datasets in the `data/cleaned` folder. |
+| 🪐&nbsp;
