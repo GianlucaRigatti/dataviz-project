@@ -1,8 +1,8 @@
 # European Passenger Car Market
 
-Developed by Gianluca Rigatti and Giuseppe Screnci for the *Data Visualisation Lab* course.
-
 <div align="center">
+
+Developed by Gianluca Rigatti and Giuseppe Screnci for the *Data Visualisation Lab* course.
 
 ![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-306998?style=for-the-badge&logo=python&logoColor=white)
 ![PySpark](https://img.shields.io/badge/PySpark-F29111?style=for-the-badge&logo=apachespark&logoColor=white)
@@ -14,7 +14,7 @@ Developed by Gianluca Rigatti and Giuseppe Screnci for the *Data Visualisation L
 
 </div>
 
-## Overview
+## 📌 Overview
 
 This project aims to develop a data visualisation solution for exploring the evolution of new passenger car registrations in Europe, with a particular focus on the transition towards more sustainable power train technologies.
 
@@ -23,7 +23,7 @@ The project includes the data preprocessing and validation steps applied to the 
 The central question guiding our analysis is:
 >"Is the observed increase in electrified vehicles driven by genuine growth in demand, national incentives and taxation rules, or is it largely a consequence of the decline in petrol and diesel vehicle offerings?"
 
-## Repository Structure
+## 📂 Repository Structure
 
 > [!IMPORTANT]
 > See [`📄 dashboard/README.md`](dashboard/README.md) for instructions on running the dashboard and [`📄 technical_report/README.md`](technical_report/README.md) for informations on the preprocessing steps and analyses carried out for the technical report deliverable.
