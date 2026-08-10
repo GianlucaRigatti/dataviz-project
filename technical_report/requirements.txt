@@ -4,3 +4,6 @@ setuptools<82
 pyspark
 pyarrow
 country-converter
+ipykernel
+matplotlib
+seaborn
