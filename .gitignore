@@ -8,6 +8,8 @@ technical_report/img/*
 !technical_report/img/.gitkeep
 technical_report/reports/*
 !technical_report/reports/.gitkeep
+technical_report/logs
+technical_report/*.ckpt
 
 # --- Gitignore template for Python projects ---
 # Byte-compiled / optimized / DLL files
