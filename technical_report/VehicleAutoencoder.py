@@ -13,15 +13,19 @@ class VehicleAutoencoder(pl.LightningModule):
         super().__init__()
         
         self.encoder = nn.Sequential(
-            nn.Linear(input_dim, 8),
+            nn.Linear(input_dim, 32),
             nn.GELU(),
-            nn.Linear(8, latent_dim)
+            nn.Linear(32, 16),
+            nn.GELU(),
+            nn.Linear(16, latent_dim)
         )
         
         self.decoder = nn.Sequential(
-            nn.Linear(latent_dim, 8),
+            nn.Linear(latent_dim, 16),
             nn.GELU(),
-            nn.Linear(8, input_dim)
+            nn.Linear(16, 32),
+            nn.GELU(),
+            nn.Linear(32, input_dim)
         )
         
         self.loss_fn = nn.MSELoss()
@@ -29,9 +33,7 @@ class VehicleAutoencoder(pl.LightningModule):
         self.weight_decay = weight_decay
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        z = self.encoder(x)
-        x_hat = self.decoder(z)
-        return x_hat
+        return self.decoder(self.encoder(x))
 
     def encode(self, x: torch.Tensor) -> torch.Tensor:
         return self.encoder(x)
@@ -61,7 +63,7 @@ class VehicleAutoencoder(pl.LightningModule):
             optimizer, 
             mode="min", 
             factor=0.5, 
-            patience=15
+            patience=3
         )
         
         return {
