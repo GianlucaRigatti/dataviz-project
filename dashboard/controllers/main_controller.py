@@ -51,30 +51,3 @@ class MainController:
             controller = self.pages.get(pathname, self.pages["/"])
             content_layout, filters_desktop, filters_mobile = controller.get_layouts()
             return content_layout, filters_desktop, filters_mobile
-        
-        @callback(
-            Output("nav-drawer", "opened"),
-            Output("nav-burger", "opened"),
-            Input("nav-burger", "opened"),
-            Input("nav-drawer", "opened"),
-            Input("url", "pathname"),
-            prevent_initial_call=True,
-        )
-        def sync_nav_drawer(burger_opened, drawer_opened, _):
-            trigger = ctx.triggered_id
-            if trigger == "url":
-                return False, False
-            if trigger == "nav-burger":
-                return burger_opened, burger_opened
-            if trigger == "nav-drawer":
-                return drawer_opened, drawer_opened
-            return dash.no_update, dash.no_update
-
-        @callback(
-            Output("filters-drawer", "opened"),
-            Input("filters-toggle-btn", "n_clicks"),
-            State("filters-drawer", "opened"),
-            prevent_initial_call=True,
-        )
-        def toggle_filter_drawer(_, is_opened):
-            return not is_opened
