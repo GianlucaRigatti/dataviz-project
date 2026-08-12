@@ -16,8 +16,7 @@ class MainView:
 
             dmc.AppShell(
                 id="app-shell",
-                header={"height": 60},
-                footer={"height": 65},
+                header={"height": {"base": 50, "md": 60}},
                 aside={"width": 300, "breakpoint": "md", "collapsed": {"mobile": True}},
                 children=[
                     dmc.AppShellHeader(
@@ -27,7 +26,7 @@ class MainView:
                             px="md",
                             children=[
                                 dmc.Group([
-                                    dmc.Text(self.settings.app_name, size="xl", fw=700),
+                                    dmc.Text(self.settings.app_name, size="xl", fw=500),
                                 ]),
 
                                 dmc.Group(
@@ -39,7 +38,7 @@ class MainView:
                                             [
                                                 dmc.PopoverTarget(
                                                     dmc.ActionIcon(
-                                                        DashIconify(icon="tabler:filter", width=24),
+                                                        DashIconify(icon="tabler:filter", width=20),
                                                         id="filters-toggle-btn",
                                                         variant="filled",
                                                         color="blue.6",
@@ -87,15 +86,6 @@ class MainView:
                         )
                     ),
 
-                    # Mobile Bottom Navigation Bar
-                    dmc.AppShellFooter(
-                        p="xs",
-                        hiddenFrom="md",
-                        zIndex=100,
-                        withBorder=True,
-                        children=self.render_nav_links(mobile=True)
-                    ),
-
                     # Desktop Aside Filters
                     dmc.AppShellAside(
                         p="md",
@@ -115,45 +105,59 @@ class MainView:
                     ),
                 ],
             ),
+
+            # Mobile Bottom Navigation Bar
+            dmc.Affix(
+                hiddenFrom="md",
+                position={"bottom": "md", "left": "50%"},
+                style={"transform": "translateX(-50%)", "width": "90%", "maxWidth": "400px"},
+                zIndex=100,
+                children=dmc.Paper(
+                    shadow="lg",
+                    withBorder=True,
+                    children=self.render_nav_links(mobile=True)
+                )
+            )
         ])
 
     def render_nav_links(self, mobile: bool, current_path: str = "/"):
-        match mobile:
-            case True:
-                control_id = "mobile-nav-tabs"
-                orientation = "horizontal" 
-                visible_from = None
-                grow = True 
-                text_size = "xs"
-                full_w = "100%"
-            case False:
-                control_id = "desktop-nav-tabs"
-                orientation = "horizontal"
-                visible_from = "md"
-                grow = False
-                text_size = "sm"
-                full_w = None
-
-        return dmc.Tabs(
-            id=control_id,
-            value=current_path,
-            orientation=orientation,
-            variant="pills",
-            visibleFrom=visible_from,
-            w=full_w,
-            children=[
-                dmc.TabsList(
-                    grow=grow,
-                    w=full_w,
-                    children=[
-                        dmc.TabsTab(
-                            dmc.Text(link["label"], size=text_size),
-                            value=link["href"],
-                            leftSection=DashIconify(icon=link["icon"], width=18),
-                            w=full_w if not mobile else None,
-                        )
-                        for link in self.nav_links
-                    ],
-                )
-            ],
-        )
+        if mobile:
+            return dmc.SegmentedControl(
+                id="mobile-nav-segmented",
+                value=current_path,
+                size="md",
+                fullWidth=True,
+                color="blue.6",
+                data=[
+                    {
+                        "label": dmc.Center([
+                            DashIconify(icon=link["icon"], width=20),
+                            dmc.Text(link["label"], ml="xs", size="sm"),
+                        ]),
+                        "value": link["href"]
+                    }
+                    for link in self.nav_links
+                ],
+            )
+        else:
+            return dmc.Tabs(
+                id="desktop-nav-tabs",
+                value=current_path,
+                orientation="horizontal",
+                variant="pills",
+                color="blue.6",
+                visibleFrom="md",
+                children=[
+                    dmc.TabsList(
+                        children=[
+                            dmc.TabsTab(
+                                dmc.Text(link["label"], size="sm"),
+                                value=link["href"],
+                                leftSection=DashIconify(icon=link["icon"], width=20),
+                                p="sm",
+                            )
+                            for link in self.nav_links
+                        ],
+                    )
+                ],
+            )

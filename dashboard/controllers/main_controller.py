@@ -29,12 +29,13 @@ class MainController:
         @callback(
             Output("url", "pathname"),
             Input("desktop-nav-tabs", "value"),
-            Input("mobile-nav-tabs", "value"),
+            Input("mobile-nav-segmented", "value"),
             State("url", "pathname"),
             prevent_initial_call=True,
         )
         def navigate_on_segment_change(desktop_val, mobile_val, current_path):
             trigger = ctx.triggered_id
+            
             selected_path = desktop_val if trigger == "desktop-nav-tabs" else mobile_val
 
             if selected_path and selected_path != current_path:
