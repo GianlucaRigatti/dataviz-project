@@ -62,12 +62,10 @@ class MainView:
             # filters-controls-mobile
             dmc.Drawer(
                 id="filters-drawer",
-                title=dmc.Group(
-                    [
-                        DashIconify(icon="tabler:filter", width=20),
-                        dmc.Text("Filters", size="lg"),
-                    ]
-                ),
+                title=dmc.Group([
+                    DashIconify(icon="tabler:filter", width=20),
+                    dmc.Text("Filters", size="lg"),
+                ]),
                 position="right",
                 size="80%",
                 children=dmc.Stack(id="filters-controls-mobile"),
@@ -156,7 +154,13 @@ class MainView:
                     dmc.AppShellAside(
                         p="md",
                         visibleFrom="md",
-                        children=dmc.Stack(id="filters-controls-desktop")
+                        children=dmc.Stack([
+                            dmc.Group([
+                                DashIconify(icon="tabler:filter", width=20),
+                                dmc.Text("Filters", size="lg"),
+                            ]),
+                            dmc.Stack(id="filters-controls-desktop")
+                        ])
                     ),
 
                     # main-content-container
