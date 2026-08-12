@@ -6,4 +6,8 @@ class GeoController:
         self.view = GeoView()
 
     def get_layouts(self) -> tuple[dmc.Stack, dmc.Stack]:
-        return self.view.render_content(), self.view.render_filters()
+        content = self.view.render_content()
+        filters_desktop = self.view.render_filters(suffix="desktop")
+        filters_mobile = self.view.render_filters(suffix="mobile")
+
+        return content, filters_desktop, filters_mobile

@@ -7,10 +7,12 @@ settings = get_settings()
 
 app = Dash(
     __name__,
-    external_stylesheets=dmc.styles.ALL
+    external_stylesheets=dmc.styles.ALL,
+    suppress_callback_exceptions=True
 )
 
-app.layout = dmc.MantineProvider(MainController().get_layout())
+main_controller = MainController()
+app.layout = dmc.MantineProvider(main_controller.get_layout())
 app.title = settings.app_name
 
 if __name__ == '__main__':

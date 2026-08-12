@@ -92,10 +92,7 @@ class MainView:
                                     ),
                                     dmc.Group(
                                         [
-                                            DashIconify(
-                                                icon="tabler:layout-dashboard",
-                                                width=24,
-                                            ),
+                                            # DashIconify(icon="tabler:layout-dashboard", width=24),
                                             dmc.Text(self.settings.app_name, size="xl"),
                                         ],
                                         gap="xs",
@@ -173,7 +170,7 @@ class MainView:
 
         ])
 
-    def render_nav_links(self, mobile, color="blue.6") -> list[dmc.Anchor]:
+    def render_nav_links(self, mobile: bool, current_path: str = "/", color: str = "blue.6"):
         match mobile:
             case True:
                 return [
@@ -189,23 +186,27 @@ class MainView:
                         href=link["href"],
                         underline=False,
                         c=color,
-                    ) for link in self.nav_links
-                ]
-            case False:
-                return [
-                    dmc.Anchor(
-                        dmc.Button(
-                            link["label"],
-                            leftSection=DashIconify(icon=link["icon"], width=20),
-                            # variant="subtle", has no glow only hover
-                            variant="light",
-                            color=color,
-                            fullWidth=True,
-                            justify="start",
-                            px="xs",
-                        ),
-                        href=link["href"],
-                        underline=False,
                     )
                     for link in self.nav_links
                 ]
+            case False:
+                # SegmentedControl expects base color names (e.g., "blue" instead of "blue.6")
+                base_color = color.split(".")[0] if "." in color else color
+
+                return dmc.SegmentedControl(
+                    id="desktop-nav-segmented-control",
+                    value=current_path,
+                    color=base_color,
+                    data=[
+                        {
+                            "label": dmc.Center(
+                                [
+                                    DashIconify(icon=link["icon"], width=18),
+                                    dmc.Text(link["label"], ml=6, size="sm"),
+                                ]
+                            ),
+                            "value": link["href"],
+                        }
+                        for link in self.nav_links
+                    ],
+                )
