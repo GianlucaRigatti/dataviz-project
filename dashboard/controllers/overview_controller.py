@@ -1,9 +1,10 @@
 import dash
 from dash import callback, ctx, Input, Output
 import dash_mantine_components as dmc
+import pandas as pd
 
 from views.overview_view import OverviewView
-from utils.data_loader import get_dataframe, get_motor_energy_colors
+from utils.data_loader import get_dataframe, get_motor_energy_colors, generate_latent_dataframe_pandas, compute_grid_normalisation
 
 class OverviewController:
     def __init__(self):
@@ -24,9 +25,9 @@ class OverviewController:
         self.geo_options.sort(key=lambda x: (x["value"] != "EU27_2020", x["label"]))
         self.default_geo = "EU27_2020" if "EU27_2020" in self.df["geo"].values else self.geo_options[0]["value"]
 
-    def _get_chart_payload(self, years: list[int], region: str) -> tuple[list[dict], list[dict]]:
+    def _get_chart_payload(self, years: list[int], region: str) -> tuple[list[dict], list[dict], list[dict], dict]:
         if not years or not region:
-            return [], []
+            return [], [], [], {}
 
         min_y, max_y = years
         filtered = self.df[
@@ -36,8 +37,11 @@ class OverviewController:
         ]
 
         if filtered.empty:
-            return [], []
+            return [], [], [], {}
 
+        # ---------------------------------------------------------
+        # 1. Raw Registrations (Chart A)
+        # ---------------------------------------------------------
         pivot_df = filtered.pivot_table(
             index="TIME_PERIOD",
             columns="Motor energy",
@@ -48,14 +52,75 @@ class OverviewController:
 
         pivot_df.rename(columns={"TIME_PERIOD": "year"}, inplace=True)
         raw_chart_data = pivot_df.to_dict(orient="records")
+
+        # ---------------------------------------------------------
+        # 2. Baseline Normalisation (Chart B)
+        # ---------------------------------------------------------
+        unique_consumer_choices_counts = (
+            filtered.drop_duplicates(subset=[
+                "TIME_PERIOD", 
+                "Motor energy", 
+                "commercial_name", 
+                "engine_capacity (cm3)", 
+                "engine_power (KW)"
+            ])
+            .groupby(["TIME_PERIOD", "Motor energy"])
+            .size()
+            .reset_index(name="unique_choices")
+        )
+
+        registrations_counts = (
+            filtered.groupby(["TIME_PERIOD", "Motor energy"])["registrations"]
+            .sum()
+            .reset_index(name="registrations_count")
+        )
+
+        unique_consumer_choices_counts = unique_consumer_choices_counts.merge(
+            registrations_counts, 
+            on=["TIME_PERIOD", "Motor energy"]
+        )
+
+        unique_consumer_choices_counts["baseline_normalized_registrations"] = (
+            unique_consumer_choices_counts["registrations_count"] / unique_consumer_choices_counts["unique_choices"]
+        )
+
+        unique_consumer_choices_counts.rename(columns={"TIME_PERIOD": "year"}, inplace=True)
+
+        wide_df = unique_consumer_choices_counts.pivot(
+            index="year", 
+            columns="Motor energy", 
+            values="baseline_normalized_registrations"
+        ).reset_index()
+
+        baseline_chart_data = wide_df.to_dict(orient="records")
+
+        # ---------------------------------------------------------
+        # 3. Autoencoder Normalisation (Chart C)
+        # ---------------------------------------------------------
+        enriched_pdf = generate_latent_dataframe_pandas(filtered)
+        norm_summary = compute_grid_normalisation(enriched_pdf, grid_size=0.2, min_registrations=10)
+
+        autoencoder_pivot = norm_summary.pivot_table(
+            index="TIME_PERIOD",
+            columns="Motor energy",
+            values="normalized_registrations",
+            fill_value=0
+        ).reset_index()
+
+        if not autoencoder_pivot.empty:
+            autoencoder_pivot.rename(columns={"TIME_PERIOD": "year"}, inplace=True)
+            autoencoder_chart_data = autoencoder_pivot.to_dict(orient="records")
+        else:
+            autoencoder_chart_data = []
+
         series_config = get_motor_energy_colors()
 
-        return raw_chart_data, series_config
+        return raw_chart_data, baseline_chart_data, autoencoder_chart_data, series_config
 
     def get_layouts(self) -> tuple[dmc.Stack, dmc.Stack, dmc.Stack]:
-        initial_data, series_config = self._get_chart_payload([self.min_year, self.max_year], self.default_geo)
+        _, _, _, series_config = self._get_chart_payload([self.min_year, self.max_year], self.default_geo)
         
-        content = self.view.render_content(initial_data, series_config)
+        content = self.view.render_content([], series_config)
         filters_desktop = self.view.render_filters(self.min_year, self.max_year, self.geo_options, self.default_geo, suffix="desktop")
         filters_mobile = self.view.render_filters(self.min_year, self.max_year, self.geo_options, self.default_geo, suffix="mobile")
 
@@ -101,12 +166,12 @@ class OverviewController:
             if not active_years or not active_geo:
                 return [dash.no_update] * 7
 
-            chart_data, _ = self._get_chart_payload(active_years, active_geo)
+            raw_chart_data, baseline_chart_data, autoencoder_chart_data, _ = self._get_chart_payload(active_years, active_geo)
 
             return (
-                chart_data,
-                chart_data,
-                chart_data,
+                raw_chart_data,
+                baseline_chart_data,
+                autoencoder_chart_data,
                 out_year_d,
                 out_year_m,
                 out_geo_d,

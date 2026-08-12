@@ -1,3 +1,14 @@
 ._dash-loading {
     display: none !important;
 }
+
+.recharts-tooltip-wrapper .m-chart-tooltip,
+.recharts-tooltip-wrapper .mantine-Text-root,
+.recharts-tooltip-wrapper span, 
+.recharts-tooltip-wrapper div {
+    font-size: var(--mantine-font-size-xs) !important;
+}
+
+.recharts-tooltip-wrapper > div {
+    padding: var(--mantine-spacing-xs) !important;
+}
