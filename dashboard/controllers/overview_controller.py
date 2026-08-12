@@ -7,3 +7,5 @@ class OverviewController:
 
     def get_layouts(self) -> tuple[dmc.Stack, dmc.Stack]:
         return self.view.render_content(), self.view.render_filters()
+
+    # TODO: Add callbacks here to populate the cards with the actual content (charts, filters, etc.).
