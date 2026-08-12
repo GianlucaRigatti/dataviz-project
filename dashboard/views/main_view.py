@@ -11,17 +11,16 @@ class MainView:
         self.settings = get_settings()
 
     def build(self):
-
         return dmc.Box([
             dcc.Location(id="url", refresh=False),
+            
+            # Mobile Navigation Drawer
             dmc.Drawer(
                 id="nav-drawer",
-                title=dmc.Group(
-                    [
-                        DashIconify(icon="tabler:menu-2", width=20),
-                        dmc.Text("Pages", size="lg"),
-                    ]
-                ),
+                title=dmc.Group([
+                    DashIconify(icon="tabler:menu-2", width=20),
+                    dmc.Text("Pages", size="lg"),
+                ]),
                 position="left",
                 size="80%",
                 styles={
@@ -30,7 +29,7 @@ class MainView:
                 },
                 children=dmc.Stack(
                     [
-                        dmc.Stack(self.render_nav_links(mobile=True), mt="sm"),
+                        self.render_nav_links(mobile=True),
                         dmc.Group(
                             [
                                 dmc.Anchor(
@@ -42,6 +41,7 @@ class MainView:
                                     ),
                                     href="https://github.com/GianlucaRigatti/dataviz-project",
                                     underline=False,
+                                    target="_blank",
                                 ),
                                 dmc.ColorSchemeToggle(
                                     lightIcon=DashIconify(icon="tabler:sun", width=20),
@@ -51,15 +51,16 @@ class MainView:
                                     size="lg",
                                 ),
                             ],
-                            gap="xs"
+                            gap="xs",
                         ),
                     ],
                     justify="space-between",
-                    flex=1
+                    flex=1,
+                    mt="sm",
                 ),
             ),
 
-            # filters-controls-mobile
+            # Mobile Filters Drawer
             dmc.Drawer(
                 id="filters-drawer",
                 title=dmc.Group([
@@ -76,7 +77,6 @@ class MainView:
                 header={"height": 60},
                 aside={"width": 300, "breakpoint": "md", "collapsed": {"mobile": True}},
                 children=[
-
                     dmc.AppShellHeader(
                         dmc.Group(
                             justify="space-between",
@@ -88,35 +88,22 @@ class MainView:
                                         id="nav-burger",
                                         opened=False,
                                         hiddenFrom="md",
-                                        size="sm"
+                                        size="sm",
                                     ),
-                                    dmc.Group(
-                                        [
-                                            # DashIconify(icon="tabler:layout-dashboard", width=24),
-                                            dmc.Text(self.settings.app_name, size="xl"),
-                                        ],
-                                        gap="xs",
-                                    )
+                                    dmc.Text(self.settings.app_name, size="xl"),
                                 ]),
 
                                 dmc.Group(
                                     [
-                                        dmc.Group([
-                                            dmc.Group(
-                                                self.render_nav_links(mobile=False),
-                                                gap="xs",
-                                                visibleFrom="md",
-                                            ),
-                                            dmc.ActionIcon(
-                                                DashIconify(icon="tabler:filter", width=24),
-                                                id="filters-toggle-btn",
-                                                variant="filled",
-                                                color="blue.6",
-                                                hiddenFrom="md",
-                                                size="lg",
-                                            )
-                                        ]),
-
+                                        self.render_nav_links(mobile=False),
+                                        dmc.ActionIcon(
+                                            DashIconify(icon="tabler:filter", width=24),
+                                            id="filters-toggle-btn",
+                                            variant="filled",
+                                            color="blue.6",
+                                            hiddenFrom="md",
+                                            size="lg",
+                                        ),
                                         dmc.Group(
                                             [
                                                 dmc.Anchor(
@@ -128,6 +115,7 @@ class MainView:
                                                     ),
                                                     href="https://github.com/GianlucaRigatti/dataviz-project",
                                                     underline=False,
+                                                    target="_blank",
                                                 ),
                                                 dmc.ColorSchemeToggle(
                                                     lightIcon=DashIconify(icon="tabler:sun", width=20),
@@ -141,13 +129,13 @@ class MainView:
                                             gap="xs",
                                         ),
                                     ],
-                                    gap="lg"
+                                    gap="md",
                                 ),
-                            ]
+                            ],
                         )
                     ),
 
-                    # filters-controls-desktop
+                    # Desktop Aside Filters
                     dmc.AppShellAside(
                         p="md",
                         visibleFrom="md",
@@ -156,57 +144,56 @@ class MainView:
                                 DashIconify(icon="tabler:filter", width=20),
                                 dmc.Text("Filters", size="lg"),
                             ]),
-                            dmc.Stack(id="filters-controls-desktop")
+                            dmc.Stack(id="filters-controls-desktop"),
                         ])
                     ),
 
-                    # main-content-container
+                    # Main Content Area
                     dmc.AppShellMain(
                         children=dmc.Box(id="main-content-container", p="md")
-                    )
-
-                ]
-            )
-
+                    ),
+                ],
+            ),
         ])
 
-    def render_nav_links(self, mobile: bool, current_path: str = "/", color: str = "blue.6"):
+    def render_nav_links(self, mobile: bool, current_path: str = "/"):
+
         match mobile:
             case True:
-                return [
-                    dmc.Anchor(
-                        dmc.Group(
-                            [
-                                DashIconify(icon=link["icon"], width=20),
-                                dmc.Text(link["label"], size="lg"),
-                            ],
-                            gap="xs",
-                            align="center",
-                        ),
-                        href=link["href"],
-                        underline=False,
-                        c=color,
-                    )
-                    for link in self.nav_links
-                ]
+                control_id = "mobile-nav-tabs"
+                orientation = "vertical"
+                visible_from = None
+                grow = True
+                text_size = "md"
+                full_w = "100%"
             case False:
-                # SegmentedControl expects base color names (e.g., "blue" instead of "blue.6")
-                base_color = color.split(".")[0] if "." in color else color
+                control_id = "desktop-nav-tabs"
+                orientation = "horizontal"
+                visible_from = "md"
+                grow = False
+                text_size = "sm"
+                full_w = None
 
-                return dmc.SegmentedControl(
-                    id="desktop-nav-segmented-control",
-                    value=current_path,
-                    color=base_color,
-                    data=[
-                        {
-                            "label": dmc.Center(
-                                [
-                                    DashIconify(icon=link["icon"], width=18),
-                                    dmc.Text(link["label"], ml=6, size="sm"),
-                                ]
-                            ),
-                            "value": link["href"],
-                        }
+        return dmc.Tabs(
+            id=control_id,
+            value=current_path,
+            orientation=orientation,
+            variant="pills",
+            visibleFrom=visible_from,
+            w=full_w,
+            children=[
+                dmc.TabsList(
+                    grow=grow,
+                    w=full_w,
+                    children=[
+                        dmc.TabsTab(
+                            dmc.Text(link["label"], size=text_size),
+                            value=link["href"],
+                            leftSection=DashIconify(icon=link["icon"], width=18),
+                            w=full_w,
+                        )
                         for link in self.nav_links
                     ],
                 )
+            ],
+        )

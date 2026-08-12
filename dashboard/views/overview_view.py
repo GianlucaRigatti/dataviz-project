@@ -24,7 +24,17 @@ class OverviewView:
         ], justify="right", mb="sm", gap="xs")
 
         return dmc.Stack([
-            dmc.Text("Overview", size="xl"),
+            dmc.Card(
+                dmc.Stack([
+                    dmc.Text("Overview", size="xl"),
+                    dmc.Text("Add description here..."),
+                ], gap="sm"),
+                withBorder=True,
+                shadow="sm",
+                p="md",
+                pl="xl",
+                pr="xl",
+            ),
             dmc.Card(
                 dmc.Stack([
                     dmc.Text("RAW REGISTRATION COUNTS"),
@@ -94,10 +104,12 @@ class OverviewView:
                         activeDotProps={"r": 6, "strokeWidth": 1, "fill": "var(--mantine-color-body)"},
                         lineChartProps={"syncId": "market-evolution-charts"},
                     ),
-                ], gap="sm", pb="md"),
+                ], gap="sm", pb="xl"),
                 withBorder=True,
                 shadow="sm",
-                p="xl"
+                p="md",
+                pl="xl",
+                pr="xl",
             )
         ], gap="sm")
 
@@ -113,7 +125,7 @@ class OverviewView:
         return dmc.Stack([
             dmc.Card(
                 dmc.Stack([
-                    dmc.Text("TIME PERIOD"),
+                    dmc.Text("TIME PERIOD", ml="xs"),
                     dmc.RangeSlider(
                         id=f"overview-year-slider-{suffix}",
                         min=min_year,
@@ -129,12 +141,12 @@ class OverviewView:
                 ]),
                 withBorder=True,
                 shadow="sm",
-                p="sm",
+                p="md",
                 pb="xl"
             ),
             dmc.Card(
                 dmc.Stack([
-                    dmc.Text("REGION"),
+                    dmc.Text("REGION", ml="xs"),
                     dmc.Select(
                         id=f"overview-geo-select-{suffix}",
                         data=geo_options,
@@ -152,6 +164,6 @@ class OverviewView:
                 ]),
                 withBorder=True,
                 shadow="sm",
-                p="sm"
+                p="md"
             )
         ], gap="md")

@@ -47,10 +47,10 @@ class OverviewController:
         ).reset_index()
 
         pivot_df.rename(columns={"TIME_PERIOD": "year"}, inplace=True)
-        chart_data = pivot_df.to_dict(orient="records")
+        raw_chart_data = pivot_df.to_dict(orient="records")
         series_config = get_motor_energy_colors()
 
-        return chart_data, series_config
+        return raw_chart_data, series_config
 
     def get_layouts(self) -> tuple[dmc.Stack, dmc.Stack, dmc.Stack]:
         initial_data, series_config = self._get_chart_payload([self.min_year, self.max_year], self.default_geo)

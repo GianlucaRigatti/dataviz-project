@@ -12,7 +12,7 @@ app = Dash(
 )
 
 main_controller = MainController()
-app.layout = dmc.MantineProvider(main_controller.get_layout())
+app.layout = dmc.MantineProvider(main_controller.get_layout(), theme={"defaultRadius": "xl"})
 app.title = settings.app_name
 
 if __name__ == '__main__':
