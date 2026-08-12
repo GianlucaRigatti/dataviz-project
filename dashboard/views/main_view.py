@@ -108,9 +108,15 @@ class MainView:
 
             # Mobile Bottom Navigation Bar
             dmc.Affix(
+                id="mobile-bottom-nav",
                 hiddenFrom="md",
                 position={"bottom": "md", "left": "50%"},
-                style={"transform": "translateX(-50%)", "width": "90%", "maxWidth": "400px"},
+                style={
+                    "transform": "translate(-50%, 0)", 
+                    "transition": "transform 0.3s ease",
+                    "width": "90%", 
+                    "maxWidth": "400px"
+                },
                 zIndex=100,
                 children=dmc.Paper(
                     shadow="lg",

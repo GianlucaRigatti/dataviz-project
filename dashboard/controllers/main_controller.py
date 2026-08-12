@@ -1,5 +1,5 @@
 import dash
-from dash import callback, ctx, Input, Output, State
+from dash import callback, clientside_callback, ctx, Input, Output, State
 from controllers.overview_controller import OverviewController
 from controllers.geo_controller import GeoController
 from controllers.market_volume_controller import MarketVolumeController
@@ -52,3 +52,34 @@ class MainController:
             controller = self.pages.get(pathname, self.pages["/"])
             content_layout, filters_desktop, filters_mobile = controller.get_layouts()
             return content_layout, filters_desktop, filters_mobile
+
+    clientside_callback(
+        """
+        function(id) {
+            // Prevent adding multiple event listeners if the component re-renders
+            if (!window.navListenerAdded) {
+                window.navListenerAdded = true;
+                let lastScrollTop = 0;
+                
+                window.addEventListener("scroll", function() {
+                    let st = window.pageYOffset || document.documentElement.scrollTop;
+                    let nav = document.getElementById(id);
+                    
+                    if (nav) {
+                        if (st > lastScrollTop && st > 50) {
+                            // Scrolling DOWN: Slide it out of view (150% downwards)
+                            nav.style.transform = "translate(-50%, 150%)";
+                        } else {
+                            // Scrolling UP: Bring it back to original position
+                            nav.style.transform = "translate(-50%, 0)";
+                        }
+                    }
+                    lastScrollTop = st <= 0 ? 0 : st; 
+                }, false);
+            }
+            return window.dash_clientside.no_update;
+        }
+        """,
+        Output("mobile-bottom-nav", "id"),
+        Input("mobile-bottom-nav", "id")
+    )
