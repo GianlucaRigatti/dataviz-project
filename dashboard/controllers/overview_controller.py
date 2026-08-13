@@ -17,31 +17,39 @@ class OverviewController:
         self.min_year = int(self.df["TIME_PERIOD"].min())
         self.max_year = int(self.df["TIME_PERIOD"].max())
 
-        geo_df = self.df[["geo", "Geopolitical entity (reporting)"]].drop_duplicates()
+        geo_df = self.df[~self.df["geo"].isin(["EU27_2020", "EU28", "EU"])][["geo", "Geopolitical entity (reporting)"]].drop_duplicates()
+        
         self.geo_options = [
             {"value": row["geo"], "label": row["Geopolitical entity (reporting)"]}
             for _, row in geo_df.iterrows()
         ]
-        self.geo_options.sort(key=lambda x: (x["value"] != "EU27_2020", x["label"]))
-        self.default_geo = "EU27_2020" if "EU27_2020" in self.df["geo"].values else self.geo_options[0]["value"]
+        
+        self.geo_options.insert(0, {"value": "EU27_2020", "label": "European Union (EU27)"})
+        self.default_geo = "EU27_2020"
 
     def _get_chart_payload(self, years: list[int], region: str) -> tuple[list[dict], list[dict], list[dict], dict]:
         if not years or not region:
             return [], [], [], {}
 
         min_y, max_y = years
-        filtered = self.df[
-            (self.df["geo"] == region) & 
-            (self.df["TIME_PERIOD"] >= min_y) & 
-            (self.df["TIME_PERIOD"] <= max_y)
-        ]
+        
+        if region == "EU27_2020":
+            filtered = self.df[
+                (self.df["TIME_PERIOD"] >= min_y) & 
+                (self.df["TIME_PERIOD"] <= max_y)
+            ]
+        else:
+            filtered = self.df[
+                (self.df["geo"] == region) & 
+                (self.df["TIME_PERIOD"] >= min_y) & 
+                (self.df["TIME_PERIOD"] <= max_y)
+            ]
 
         if filtered.empty:
             return [], [], [], {}
 
-        # ---------------------------------------------------------
-        # 1. Raw Registrations (Chart A)
-        # ---------------------------------------------------------
+        # Raw Registrations Chart
+
         pivot_df = filtered.pivot_table(
             index="TIME_PERIOD",
             columns="Motor energy",
@@ -53,9 +61,8 @@ class OverviewController:
         pivot_df.rename(columns={"TIME_PERIOD": "year"}, inplace=True)
         raw_chart_data = pivot_df.to_dict(orient="records")
 
-        # ---------------------------------------------------------
-        # 2. Baseline Normalisation (Chart B)
-        # ---------------------------------------------------------
+        # Baseline Normalisation Chart
+        
         unique_consumer_choices_counts = (
             filtered.drop_duplicates(subset=[
                 "TIME_PERIOD", 
@@ -94,9 +101,8 @@ class OverviewController:
 
         baseline_chart_data = wide_df.to_dict(orient="records")
 
-        # ---------------------------------------------------------
-        # 3. Autoencoder Normalisation (Chart C)
-        # ---------------------------------------------------------
+        # Autoencoder Normalisation Chart
+        
         enriched_pdf = generate_latent_dataframe_pandas(filtered)
         norm_summary = compute_grid_normalisation(enriched_pdf, grid_size=0.2, min_registrations=10)
 

@@ -2,7 +2,7 @@ import dash
 from dash import callback, clientside_callback, ctx, Input, Output, State
 from controllers.overview_controller import OverviewController
 from controllers.geo_controller import GeoController
-from controllers.market_volume_controller import MarketVolumeController
+from controllers.volume_controller import VolumeController
 from views.main_view import MainView
 
 
@@ -11,13 +11,13 @@ class MainController:
         self.pages = {
             "/": OverviewController(),
             "/geo": GeoController(),
-            "/market-volume": MarketVolumeController(),
+            "/volume": VolumeController(),
         }
 
         self.nav_links = [
             {"label": "Overview", "href": "/", "icon": "tabler:trending-up-down"},
             {"label": "Geo", "href": "/geo", "icon": "tabler:world"},
-            {"label": "Market Volume", "href": "/market-volume", "icon": "tabler:car"},
+            {"label": "Volume", "href": "/volume", "icon": "tabler:car"},
         ]
         self.view = MainView(self.nav_links)
         self._register_callbacks()

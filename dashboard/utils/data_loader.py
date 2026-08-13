@@ -16,19 +16,7 @@ def get_dataframe(data_path: Path | None = None) -> pd.DataFrame:
     if not data_path.exists():
         raise FileNotFoundError(f"Parquet file not found at {data_path.resolve()}")
 
-    return _add_eu27_aggregate(pd.read_parquet(data_path, engine="pyarrow"))
-
-def _add_eu27_aggregate(df: pd.DataFrame) -> pd.DataFrame:
-    if "EU27_2020" in df["geo"].unique():
-        return df
-
-    eu27_df = (
-        df.groupby(["TIME_PERIOD", "Motor energy"], as_index=False)["registrations"]
-        .sum()
-    )
-    eu27_df["geo"] = "EU27_2020"
-    eu27_df["Geopolitical entity (reporting)"] = "European Union (EU27)"
-    return pd.concat([df, eu27_df], ignore_index=True)
+    return pd.read_parquet(data_path, engine="pyarrow")
 
 @lru_cache(maxsize=1)
 def get_motor_energy_colors() -> list[dict]:

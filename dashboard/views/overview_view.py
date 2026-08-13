@@ -30,7 +30,7 @@ class OverviewView:
             ], gap="md", mb="sm"),
             dmc.Card(
                 dmc.Stack([
-                    dmc.Text("RAW REGISTRATION COUNTS"),
+                    dmc.Title("Passenger Car Registrations", order=3),
                     legend,
                     dmc.LineChart(
                         id="overview-timeseries-raw-chart",
@@ -53,7 +53,13 @@ class OverviewView:
                         activeDotProps={"r": 6, "strokeWidth": 1, "fill": "var(--mantine-color-body)"},
                         lineChartProps={"syncId": "market-evolution-charts"},
                     ),
-                    dmc.Text("BASELINE NORMALISATION COUNTS"),
+                    dmc.Title(
+                        [
+                            "Baseline Normalisation",
+                            dmc.Text("Total Registrations / Unique Choices", fs="italic"),
+                        ],
+                        order=3,
+                    ),
                     dmc.LineChart(
                         id="overview-timeseries-baseline-chart",
                         h=200,
@@ -75,7 +81,13 @@ class OverviewView:
                         activeDotProps={"r": 6, "strokeWidth": 1, "fill": "var(--mantine-color-body)"},
                         lineChartProps={"syncId": "market-evolution-charts"},
                     ),
-                    dmc.Text("AUTOENCODER NORMALISATION COUNTS"),
+                    dmc.Title(
+                        [
+                            "Autoencoder Normalisation",
+                            dmc.Text("Total Registrations / Latent Volume", fs="italic"),
+                        ],
+                        order=3,
+                    ),
                     dmc.LineChart(
                         id="overview-timeseries-autoencoder-chart",
                         h=200,

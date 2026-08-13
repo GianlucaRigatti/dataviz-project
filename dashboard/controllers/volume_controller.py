@@ -1,9 +1,9 @@
 import dash_mantine_components as dmc
-from views.market_volume_view import MarketVolumeView
+from views.volume_view import VolumeView
 
-class MarketVolumeController:
+class VolumeController:
     def __init__(self):
-        self.view = MarketVolumeView()
+        self.view = VolumeView()
 
     def get_layouts(self) -> tuple[dmc.Stack, dmc.Stack]:
         content = self.view.render_content()
