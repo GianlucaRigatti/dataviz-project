@@ -1,12 +1,208 @@
 import dash_mantine_components as dmc
+from dash_iconify import DashIconify
+
 
 class VolumeView:
-    def render_content(self):
-        return dmc.Stack([
-            dmc.Text("Volume Content Here.", size="lg")
-        ])
+    def render_content(
+        self,
+        initial_factors_data: list[dict],
+        initial_bubble_data: list[dict],
+        series_config: list[dict],
+    ) -> dmc.Stack:
+        series_names = [s["name"] for s in series_config]
 
-    def render_filters(self, suffix: str = "desktop"):
-        return dmc.Stack([
-            dmc.Text("Volume Filters Here.", size="lg")
-        ])
+        legend = dmc.Group(
+            [
+                dmc.ChipGroup(
+                    [
+                        dmc.Chip(
+                            s["name"],
+                            value=s["name"],
+                            size="sm",
+                            variant="light",
+                            color=s["color"].split(".")[0],
+                            icon=DashIconify(icon="tabler:circle-filled"),
+                        )
+                        for s in series_config
+                    ],
+                    id="volume-series-filter",
+                    multiple=True,
+                    value=series_names,
+                )
+            ],
+            justify="right",
+            mb="sm",
+            gap="xs",
+        )
+
+        return dmc.Stack(
+            [
+                dmc.Stack(
+                    [
+                        dmc.Title(
+                            "Normalisation Factors & Latent Volume",
+                            order=2,
+                            fw=1000,
+                        ),
+                        dmc.Text(
+                            "Evaluation of model choice normalization factors alongside autoencoder latent volume density."
+                        ),
+                    ],
+                    gap="md",
+                    mb="sm",
+                ),
+                dmc.Card(
+                    dmc.Stack(
+                        [
+                            dmc.Title(
+                                [
+                                    "Baseline Normalisation Factor",
+                                    dmc.Text(
+                                        "Count of Unique Consumer Model Choices (Name + Capacity + Power)",
+                                        fs="italic",
+                                    ),
+                                ],
+                                order=3,
+                            ),
+                            legend,
+                            dmc.LineChart(
+                                id="volume-timeseries-factors-chart",
+                                h=300,
+                                dataKey="TIME_PERIOD",
+                                data=initial_factors_data,
+                                series=series_config,
+                                withLegend=False,
+                                curveType="monotone",
+                                tickLine="y",
+                                tooltipAnimationDuration=190,
+                                strokeWidth=3,
+                                dotProps={"r": 4},
+                                activeDotProps={
+                                    "r": 6,
+                                    "strokeWidth": 1,
+                                    "fill": "var(--mantine-color-body)",
+                                },
+                            ),
+                        ],
+                        gap="md",
+                        m={"base": "sm", "md": "md"},
+                    ),
+                    p="xl",
+                ),
+                dmc.Card(
+                    dmc.Stack(
+                        [
+                            dmc.Title(
+                                [
+                                    "Latent Volume Distribution",
+                                    dmc.Text(
+                                        "Autoencoder latent-space volume used for powertrain normalisation",
+                                        fs="italic",
+                                    ),
+                                ],
+                                order=3,
+                            ),
+                            dmc.BubbleChart(
+                                id="volume-energy-bubble-chart",
+                                h=220,
+                                data=initial_bubble_data,
+                                dataKey={
+                                    "x": "Motor energy",
+                                    "y": "index",
+                                    "z": "latent_volume",
+                                },
+                                range=[50, 1000],
+                                label="Latent Volume",
+                                color="indigo.6",
+                                gridColor="gray.3",
+                                textColor="gray.7",
+                                withTooltip=True,
+                            ),
+                        ],
+                        gap="md",
+                        m={"base": "sm", "md": "md"},
+                    ),
+                    p="xl",
+                ),
+            ],
+            gap="sm",
+        )
+
+    def render_filters(
+        self,
+        min_year: int,
+        max_year: int,
+        geo_options: list[dict],
+        default_geo: str,
+        suffix: str = "desktop",
+    ) -> dmc.Stack:
+        year_diff = max_year - min_year
+        label_interval = 5 if year_diff >= 15 else (3 if year_diff >= 6 else 1)
+
+        marks = []
+        for y in range(min_year, max_year + 1):
+            is_labeled = (
+                (y == min_year)
+                or (y == max_year)
+                or ((y - min_year) % label_interval == 0)
+            )
+            marks.append(
+                {"value": y, "label": str(y)} if is_labeled else {"value": y}
+            )
+
+        return dmc.Stack(
+            [
+                dmc.Card(
+                    dmc.Stack(
+                        [
+                            dmc.Text("TIME PERIOD", ml="xs"),
+                            dmc.RangeSlider(
+                                id=f"volume-year-slider-{suffix}",
+                                min=min_year,
+                                max=max_year,
+                                value=[min_year, max_year],
+                                step=1,
+                                minRange=1,
+                                marks=marks,
+                                ml="xs",
+                                mr="xs",
+                                size="md",
+                            ),
+                        ]
+                    ),
+                    p="md",
+                    pb="xl",
+                ),
+                dmc.Card(
+                    dmc.Stack(
+                        [
+                            dmc.Text("REGION", ml="xs"),
+                            dmc.Select(
+                                id=f"volume-geo-select-{suffix}",
+                                data=geo_options,
+                                value=default_geo,
+                                searchable=True,
+                                clearSearchOnFocus=True,
+                                nothingFoundMessage="Nothing found...",
+                                clearable=False,
+                                allowDeselect=False,
+                                comboboxProps={
+                                    "transitionProps": {
+                                        "transition": "pop",
+                                        "duration": 200,
+                                    },
+                                    "shadow": "sm",
+                                },
+                                leftSectionPointerEvents="none",
+                                leftSection=DashIconify(
+                                    icon="tabler:world-pin"
+                                ),
+                                variant="filled",
+                            ),
+                        ]
+                    ),
+                    p="md",
+                ),
+            ],
+            gap="md",
+        )

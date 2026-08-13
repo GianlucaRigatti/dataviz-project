@@ -147,6 +147,17 @@ def round_data_to_two_decimals(data: list[dict]) -> list[dict]:
         for row in data
     ]
 
+def compute_active(pdf, min_reg):
+    cell_agg = (
+        pdf.groupby(["Motor energy", "cell_x", "cell_y"])
+        .agg(cell_registrations=("registrations", "sum"))
+        .reset_index()
+    )
+
+    active_cells = cell_agg[cell_agg["cell_registrations"] >= min_reg]
+
+    return active_cells, cell_agg
+
 def compute_static_latent_volume(
     enriched_pdf: pd.DataFrame,
     grid_size: float = 0.2,
@@ -163,13 +174,7 @@ def compute_static_latent_volume(
     pdf["cell_x"] = np.floor(pdf["z_1"] / grid_size).astype(int)
     pdf["cell_y"] = np.floor(pdf["z_2"] / grid_size).astype(int)
 
-    cell_agg = (
-        pdf.groupby(["Motor energy", "cell_x", "cell_y"])
-        .agg(cell_registrations=("registrations", "sum"))
-        .reset_index()
-    )
-
-    active_cells = cell_agg[cell_agg["cell_registrations"] >= min_registrations]
+    active_cells, cell_agg = compute_active(pdf, min_registrations)
 
     static_volume = (
         active_cells.groupby("Motor energy")
@@ -231,3 +236,65 @@ def compute_baseline_normalization(
     )
 
     return summary
+
+def extract_latent_volume_bubbles(
+    df: pd.DataFrame,
+    grid_size: float = 0.2,
+    min_registrations: int = 20,
+) -> list[dict]:
+    """
+    Build BubbleChart data from autoencoder latent-space volume.
+    """
+
+    if df.empty:
+        return []
+
+    required_columns = {
+        "Motor energy",
+        "z_1",
+        "z_2",
+        "registrations",
+    }
+
+    missing = required_columns - set(df.columns)
+    if missing:
+        raise ValueError(
+            f"Latent volume calculation requires columns: {sorted(missing)}. "
+            f"Missing: {sorted(missing)}"
+        )
+
+    pdf = df.copy()
+
+    pdf["cell_x"] = np.floor(pdf["z_1"] / grid_size).astype(int)
+    pdf["cell_y"] = np.floor(pdf["z_2"] / grid_size).astype(int)
+
+    # determine which latent cells are sufficiently populated.
+    active_cells, cell_agg = compute_active(pdf, min_registrations)
+
+    # number of active cells in latent space per powertrain.
+    volume = (
+        active_cells.groupby("Motor energy", as_index=False)
+        .agg(latent_volume=("cell_x", "size"))
+    )
+
+    powertrains = [
+        item["name"]
+        for item in get_motor_energy_colors()
+    ]
+
+    volume["energy"] = volume["Motor energy"].map(
+        {name: i for i, name in enumerate(powertrains)}
+    )
+
+    volume = volume.dropna(subset=["energy"])
+    volume["energy"] = volume["energy"].astype(int)
+
+    volume["index"] = 1
+
+    return volume[
+        [
+            "Motor energy",
+            "index",
+            "latent_volume",
+        ]
+    ].to_dict(orient="records")
