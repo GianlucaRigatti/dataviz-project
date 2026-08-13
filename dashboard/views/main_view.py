@@ -48,7 +48,7 @@ class MainView:
                                                 ),
                                                 dmc.PopoverDropdown(
                                                     dmc.Stack(id="filters-controls-mobile"),
-                                                    p="md",
+                                                    p="xs",
                                                     pt="lg",
                                                     pb="lg",
                                                 ),
