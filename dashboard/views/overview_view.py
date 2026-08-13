@@ -97,7 +97,7 @@ class OverviewView:
                         activeDotProps={"r": 6, "strokeWidth": 1, "fill": "var(--mantine-color-body)"},
                         lineChartProps={"syncId": "market-evolution-charts"},
                     ),
-                ], gap="md"),
+                ], gap="md", m={"base": "sm", "md": "md"}),
                 p="xl",
             )
         ], gap="sm")

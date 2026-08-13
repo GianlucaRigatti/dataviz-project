@@ -69,7 +69,7 @@ theme = {
 }
 
 main_controller = MainController()
-app.layout = dmc.MantineProvider(main_controller.get_layout(), theme=theme)
+app.layout = dmc.MantineProvider(main_controller.get_layout(), theme=theme, defaultColorScheme="dark")
 app.title = settings.app_name
 
 if __name__ == '__main__':
