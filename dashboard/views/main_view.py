@@ -106,7 +106,7 @@ class MainView:
                     dmc.AppShellMain(
                         children=dmc.Box(
                             id="main-content-container", 
-                            p={"base": "md", "md": "xl"}
+                            p={"base": "lg", "md": "xl"}
                         )
                     ),
                 ],
