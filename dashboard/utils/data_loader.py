@@ -289,7 +289,7 @@ def extract_latent_volume_bubbles(
     volume = volume.dropna(subset=["energy"])
     volume["energy"] = volume["energy"].astype(int)
 
-    volume["index"] = 1
+    volume["index"] = 0.25
 
     return volume[
         [

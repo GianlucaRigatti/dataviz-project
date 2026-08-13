@@ -1,0 +1,17 @@
+pandas
+fg-data-profiling
+setuptools<82
+pyspark
+pyarrow
+country-converter
+ipykernel
+matplotlib
+seaborn
+lightning
+plotly
+nbformat
+dash
+pyyaml
+# dash-ag-grid
+dash-mantine-components
+dash-iconify
