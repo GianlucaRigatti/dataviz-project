@@ -21,10 +21,7 @@ Download the following datasets, rename them as indicated below, and place them 
 > [!WARNING]
 > Running the preprocessing notebooks may require significant memory and computational resources, especially for the large EEA dataset. A minimum of 32 GB of RAM is recommended.
 
-1. Navigate to this directory:
-   ```bash
-   cd technical_report
-2. Create and activate a virtual environment:
+1. Create and activate a virtual environment:
     ```bash
     python -m venv venv
 
@@ -34,10 +31,14 @@ Download the following datasets, rename them as indicated below, and place them 
     # On Windows (CMD / PowerShell):
     .\venv\Scripts\activate
     ```
-4. Install the required dependencies:
+2. Install the required dependencies:
    ```bash
    pip install -r requirements.txt
    ```
+3. Navigate to this directory:
+```bash
+   cd technical_report
+```
 
 ### 💾 Obtaining the Preprocessed Datasets
 

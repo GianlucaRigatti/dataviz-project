@@ -146,3 +146,88 @@ def round_data_to_two_decimals(data: list[dict]) -> list[dict]:
         {k: round(v, 2) if isinstance(v, float) else v for k, v in row.items()}
         for row in data
     ]
+
+def compute_static_latent_volume(
+    enriched_pdf: pd.DataFrame,
+    grid_size: float = 0.2,
+    min_registrations: int = 10,
+) -> pd.DataFrame:
+    """Calculates static (Non Year-Over-Year) latent space volume.
+
+    Counts unique active grid cells occupied across the entire selected range.
+    """
+    if enriched_pdf.empty:
+        return pd.DataFrame(columns=["motor_energy", "latent_volume"])
+
+    pdf = enriched_pdf.copy()
+    pdf["cell_x"] = np.floor(pdf["z_1"] / grid_size).astype(int)
+    pdf["cell_y"] = np.floor(pdf["z_2"] / grid_size).astype(int)
+
+    cell_agg = (
+        pdf.groupby(["Motor energy", "cell_x", "cell_y"])
+        .agg(cell_registrations=("registrations", "sum"))
+        .reset_index()
+    )
+
+    active_cells = cell_agg[cell_agg["cell_registrations"] >= min_registrations]
+
+    static_volume = (
+        active_cells.groupby("Motor energy")
+        .agg(latent_volume=("cell_x", "count"))
+        .reset_index()
+        .rename(columns={"Motor energy": "motor_energy"})
+    )
+
+    return static_volume
+
+def extract_baseline_factors(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Extracts unique consumer choices count (commercial name + engine capacity + kw power) per TIME_PERIOD and Motor energy.
+    """
+    if df.empty:
+        return pd.DataFrame(
+            columns=["TIME_PERIOD", "Motor energy", "unique_choices"]
+        )
+
+    return (
+        df.drop_duplicates(
+            subset=[
+                "TIME_PERIOD",
+                "Motor energy",
+                "commercial_name",
+                "engine_capacity (cm3)",
+                "engine_power (KW)",
+            ]
+        )
+        .groupby(["TIME_PERIOD", "Motor energy"])
+        .size()
+        .reset_index(name="unique_choices")
+    )
+
+
+def compute_baseline_normalization(
+    df: pd.DataFrame, factors_df: pd.DataFrame | None = None
+) -> pd.DataFrame:
+    """
+    Computes normalized registrations (registrations / unique_choices).
+    """
+    if df.empty:
+        return pd.DataFrame()
+
+    if factors_df is None:
+        factors_df = extract_baseline_factors(df)
+
+    registrations_counts = (
+        df.groupby(["TIME_PERIOD", "Motor energy"])["registrations"]
+        .sum()
+        .reset_index(name="registrations_count")
+    )
+
+    summary = factors_df.merge(
+        registrations_counts, on=["TIME_PERIOD", "Motor energy"]
+    )
+    summary["baseline_normalized_registrations"] = (
+        summary["registrations_count"] / summary["unique_choices"]
+    )
+
+    return summary

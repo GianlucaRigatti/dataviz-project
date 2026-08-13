@@ -4,7 +4,7 @@ import dash_mantine_components as dmc
 import pandas as pd
 
 from views.overview_view import OverviewView
-from utils.data_loader import get_dataframe, get_motor_energy_colors, generate_latent_dataframe_pandas, compute_grid_normalisation, round_data_to_two_decimals
+from utils.data_loader import get_dataframe, get_motor_energy_colors, generate_latent_dataframe_pandas, compute_grid_normalisation, round_data_to_two_decimals, extract_baseline_factors, compute_baseline_normalization
 
 class OverviewController:
     def __init__(self):
@@ -63,38 +63,13 @@ class OverviewController:
         raw_chart_data = pivot_df.to_dict(orient="records")
 
         # Baseline Normalisation Chart
-        
-        unique_consumer_choices_counts = (
-            filtered.drop_duplicates(subset=[
-                "TIME_PERIOD", 
-                "Motor energy", 
-                "commercial_name", 
-                "engine_capacity (cm3)", 
-                "engine_power (KW)"
-            ])
-            .groupby(["TIME_PERIOD", "Motor energy"])
-            .size()
-            .reset_index(name="unique_choices")
-        )
 
-        registrations_counts = (
-            filtered.groupby(["TIME_PERIOD", "Motor energy"])["registrations"]
-            .sum()
-            .reset_index(name="registrations_count")
-        )
+        baseline_factors = extract_baseline_factors(filtered)
+        baseline_summary = compute_baseline_normalization(filtered, factors_df=baseline_factors)
 
-        unique_consumer_choices_counts = unique_consumer_choices_counts.merge(
-            registrations_counts, 
-            on=["TIME_PERIOD", "Motor energy"]
-        )
+        baseline_summary.rename(columns={"TIME_PERIOD": "year"}, inplace=True)
 
-        unique_consumer_choices_counts["baseline_normalized_registrations"] = (
-            unique_consumer_choices_counts["registrations_count"] / unique_consumer_choices_counts["unique_choices"]
-        )
-
-        unique_consumer_choices_counts.rename(columns={"TIME_PERIOD": "year"}, inplace=True)
-
-        wide_df = unique_consumer_choices_counts.pivot(
+        wide_df = baseline_summary.pivot(
             index="year", 
             columns="Motor energy", 
             values="baseline_normalized_registrations"
