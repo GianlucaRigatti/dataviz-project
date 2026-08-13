@@ -140,3 +140,9 @@ def compute_grid_normalisation(
     summary["normalized_registrations"] = summary["total_raw_registrations"] / summary["latent_volume"]
 
     return summary
+
+def round_data_to_two_decimals(data: list[dict]) -> list[dict]:
+    return [
+        {k: round(v, 2) if isinstance(v, float) else v for k, v in row.items()}
+        for row in data
+    ]

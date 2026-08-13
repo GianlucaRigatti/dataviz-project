@@ -4,7 +4,7 @@ import dash_mantine_components as dmc
 import pandas as pd
 
 from views.overview_view import OverviewView
-from utils.data_loader import get_dataframe, get_motor_energy_colors, generate_latent_dataframe_pandas, compute_grid_normalisation
+from utils.data_loader import get_dataframe, get_motor_energy_colors, generate_latent_dataframe_pandas, compute_grid_normalisation, round_data_to_two_decimals
 
 class OverviewController:
     def __init__(self):
@@ -24,6 +24,7 @@ class OverviewController:
             for _, row in geo_df.iterrows()
         ]
         
+        self.geo_options.sort(key=lambda x: x["label"])
         self.geo_options.insert(0, {"value": "EU27_2020", "label": "European Union (EU27)"})
         self.default_geo = "EU27_2020"
 
@@ -173,6 +174,10 @@ class OverviewController:
                 return [dash.no_update] * 7
 
             raw_chart_data, baseline_chart_data, autoencoder_chart_data, _ = self._get_chart_payload(active_years, active_geo)
+
+            raw_chart_data = round_data_to_two_decimals(raw_chart_data)
+            baseline_chart_data = round_data_to_two_decimals(baseline_chart_data)
+            autoencoder_chart_data = round_data_to_two_decimals(autoencoder_chart_data)
 
             return (
                 raw_chart_data,
