@@ -26,7 +26,7 @@ class MainView:
                             px="md",
                             children=[
                                 dmc.Group([
-                                    dmc.Title(self.settings.app_name, order=2, fw=1000),
+                                    dmc.Title(self.settings.app_name, order=2, fw=900),
                                 ]),
 
                                 dmc.Group(
@@ -78,6 +78,7 @@ class MainView:
                                                     variant="light",
                                                     color="yellow.6",
                                                     size="lg",
+                                                    id="color-scheme-switch",
                                                 ),
                                             ],
                                             gap="xs",

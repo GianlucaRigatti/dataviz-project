@@ -9,7 +9,8 @@ app = Dash(
     __name__,
     external_stylesheets=[
         dmc.styles.ALL,
-        "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap",
+        "https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css",
     ],
     suppress_callback_exceptions=True
 )

@@ -25,7 +25,7 @@ class OverviewView:
 
         return dmc.Stack([
             dmc.Stack([
-                dmc.Title("Overview", order=2, fw=1000),
+                dmc.Title("Overview", order=2, fw=900),
                 dmc.Text("Add description here..."),
             ], gap="md", mb="sm"),
             dmc.Card(
@@ -56,7 +56,7 @@ class OverviewView:
                     dmc.Title(
                         [
                             "Baseline Normalisation",
-                            dmc.Text("Total Registrations / Unique Choices", fs="italic"),
+                            dmc.Text("Total Registrations / Unique Car and Power Train Choices", fs="italic"),
                         ],
                         order=3,
                     ),
