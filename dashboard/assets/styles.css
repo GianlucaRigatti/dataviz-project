@@ -12,3 +12,19 @@
 .recharts-tooltip-wrapper > div {
     padding: var(--mantine-spacing-xs) !important;
 }
+
+html,
+body {
+    background-color: light-dark(
+        var(--mantine-color-gray-0),
+        var(--mantine-color-dark-7)
+    );
+}
+
+#_dash-app-content {
+    min-height: 100vh;
+    background-color: light-dark(
+        var(--mantine-color-gray-0),
+        var(--mantine-color-dark-7)
+    );
+}

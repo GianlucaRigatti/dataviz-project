@@ -13,20 +13,20 @@ class MainView:
     def build(self):
         return dmc.Box([
             dcc.Location(id="url", refresh=False),
-
             dmc.AppShell(
                 id="app-shell",
-                header={"height": {"base": 50, "md": 60}},
-                aside={"width": 300, "breakpoint": "md", "collapsed": {"mobile": True}},
+                header={"height": {"base": 60, "md": 60}},
+                aside={"width": 350, "breakpoint": "md", "collapsed": {"mobile": True}},
                 children=[
                     dmc.AppShellHeader(
-                        dmc.Group(
+                        bg="light-dark(var(--mantine-color-white), #283044)",
+                        children=dmc.Group(
                             justify="space-between",
                             h="100%",
                             px="md",
                             children=[
                                 dmc.Group([
-                                    dmc.Text(self.settings.app_name, size="xl", fw=500),
+                                    dmc.Title(self.settings.app_name, order=2, fw=1000),
                                 ]),
 
                                 dmc.Group(
@@ -101,7 +101,10 @@ class MainView:
 
                     # Main Content Area
                     dmc.AppShellMain(
-                        children=dmc.Box(id="main-content-container", p="md")
+                        children=dmc.Box(
+                            id="main-content-container", 
+                            p={"base": "md", "md": "xl"}
+                        )
                     ),
                 ],
             ),

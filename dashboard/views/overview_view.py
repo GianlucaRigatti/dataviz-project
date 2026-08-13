@@ -24,17 +24,10 @@ class OverviewView:
         ], justify="right", mb="sm", gap="xs")
 
         return dmc.Stack([
-            dmc.Card(
-                dmc.Stack([
-                    dmc.Text("Overview", size="xl"),
-                    dmc.Text("Add description here..."),
-                ], gap="sm"),
-                withBorder=True,
-                shadow="sm",
-                p="lg",
-                pl="xl",
-                pr="xl",
-            ),
+            dmc.Stack([
+                dmc.Title("Overview", order=2, fw=1000),
+                dmc.Text("Add description here..."),
+            ], gap="md", mb="sm"),
             dmc.Card(
                 dmc.Stack([
                     dmc.Text("RAW REGISTRATION COUNTS"),
@@ -104,12 +97,8 @@ class OverviewView:
                         activeDotProps={"r": 6, "strokeWidth": 1, "fill": "var(--mantine-color-body)"},
                         lineChartProps={"syncId": "market-evolution-charts"},
                     ),
-                ], gap="sm", pb="xl"),
-                withBorder=True,
-                shadow="sm",
-                p="lg",
-                pl="xl",
-                pr="xl",
+                ], gap="md"),
+                p="xl",
             )
         ], gap="sm")
 
@@ -139,8 +128,6 @@ class OverviewView:
                         size="md",
                     )
                 ]),
-                withBorder=True,
-                shadow="sm",
                 p="md",
                 pb="xl"
             ),
@@ -162,8 +149,6 @@ class OverviewView:
                         variant="filled",
                     )
                 ]),
-                withBorder=True,
-                shadow="sm",
                 p="md"
             )
         ], gap="md")
