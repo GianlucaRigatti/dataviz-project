@@ -54,7 +54,7 @@ class GeoView:
                                     ], align="center", gap="lg"),
                                     p="md",
                                     style={
-                                        "backgroundColor": "light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-8))",
+                                        "backgroundColor": "light-dark(white, var(--mantine-color-dark-8))",
                                     },
                                 ),
                                 span={"base": 12, "md": 8}
@@ -93,8 +93,12 @@ class GeoView:
                                             radius="md",
                                             color="blue.6",
                                             withItemsBorders=False,
+                                            style={
+                                                "backgroundColor": "light-dark(white, var(--mantine-color-dark-8))",
+                                            },
                                         ),
                                         shadow="lg",
+                                        radius="md",
                                     ),
                                     justify={"base": "center", "md": "flex-end"},
                                     w="100%",
