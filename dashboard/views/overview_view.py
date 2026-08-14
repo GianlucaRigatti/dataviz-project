@@ -148,7 +148,7 @@ class OverviewView:
                         },
                     ),
                 ], gap="md", m={"base": "sm", "md": "md"}),
-                p="xl",
+                p={"base": "lg", "md": "xl"},
             )
         ], gap="sm")
 
@@ -164,7 +164,7 @@ class OverviewView:
         return dmc.Stack([
             dmc.Card(
                 dmc.Stack([
-                    dmc.Text("TIME PERIOD", ml="xs"),
+                    dmc.Text("TIME PERIOD", ml="xs", size="sm", fw=700),
                     dmc.RangeSlider(
                         id=f"overview-year-slider-{suffix}",
                         min=min_year,
@@ -183,7 +183,7 @@ class OverviewView:
             ),
             dmc.Card(
                 dmc.Stack([
-                    dmc.Text("REGION", ml="xs"),
+                    dmc.Text("REGION", ml="xs", size="sm", fw=700),
                     dmc.Select(
                         id=f"overview-geo-select-{suffix}",
                         data=geo_options,
