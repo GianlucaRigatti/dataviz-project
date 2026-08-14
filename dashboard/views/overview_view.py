@@ -26,22 +26,30 @@ class OverviewView:
 
         return dmc.Stack([
             dmc.Stack([
-                dmc.Title("Overview", order=2, fw=900),
-                dmc.Text(
-                    "Evolution of passenger car registrations, baseline-normalised "
-                    "market density, and year-specific autoencoder-normalised density."
-                ),
+                dmc.Title("New Car Registrations Overview", order=2, fw=900),
+                dmc.Text([
+                    "Explore the adoption of electrified power trains in the European passenger car market over time. "
+                    "The charts compare the total raw number of registrations extracted from the ",
+                    dmc.Anchor(
+                        "EEA's Monitoring of CO2 emissions from passenger cars Regulation (EU) 2019/631", 
+                        href="https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c9b3267c02b", 
+                        target="_blank",
+                        underline = "not-hover",
+                    ),
+                    " dataset with the ones obtained through a baseline normalisation and an autoencoder-based normalisation procedure which aim to provide "
+                    "a more accurate metric that accounts for the market choice available to the consumer when purchasing a new car."
+                ]),
+                dmc.Text([
+                    "This we believe has an effect on the adoption of a specific power train type, as the technical characteristics and number of available models "
+                    "provides consumers with more opportunities to decide for a specific motor energy category. "
+                    "Use the filters to explore individual countries or the EU as a whole, adjust the time period window and select the power trains to compare."
+                ])
             ], gap="md", mb="sm"),
 
             dmc.Card(
                 dmc.Stack([
-                    dmc.Title(
-                        "Passenger Car Registrations",
-                        order=3
-                    ),
-
+                    dmc.Title("Passenger Car Registrations", order=4, fw=800),
                     legend,
-
                     dmc.LineChart(
                         id="overview-timeseries-raw-chart",
                         h=200,
@@ -74,11 +82,12 @@ class OverviewView:
                         [
                             "Baseline Normalisation",
                             dmc.Text(
-                                "Total Registrations / Unique Car and Power Train Choices",
+                                "Total Registrations / Unique Car Models and Power Train Configurations",
                                 fs="italic"
                             ),
                         ],
-                        order=3,
+                        order=4,
+                        fw=800
                     ),
 
                     dmc.LineChart(
@@ -118,7 +127,8 @@ class OverviewView:
                             ),
 
                         ],
-                        order=3,
+                        order=4,
+                        fw=800
                     ),
 
                     dmc.LineChart(
@@ -149,8 +159,78 @@ class OverviewView:
                         },
                     ),
                 ], gap="md", m={"base": "sm", "md": "md"}),
-                p="xl",
-            )
+                p={"base": "lg", "md": "xl"},
+            ),
+
+            dmc.Stack([
+                dmc.Title("How to Read the Charts", order=3, fw=800),
+                dmc.Text([
+                    "The three charts provide complementary views of the market. ",
+                    dmc.Text("Passenger Car Registrations", span=True, fw=800),
+                    " shows the number of new vehicles registered, while the ",
+                    dmc.Text("Baseline Normalisation", span=True, fw=800),
+                    " and ",
+                    dmc.Text("Autoencoder Normalisation", span=True, fw=800),
+                    " account for the variety of vehicle options (engine power, engine size and model) available and utility offered for each motor energy "
+                    "category respectively. Comparing these trends helps distinguish whether a power train is gaining registrations because consumers are choosing it "
+                    "more frequently, or because the range of available alternatives is changing."
+                ], mb="sm"),
+
+                dmc.Card(
+                    dmc.Stack([
+                        dmc.Text([
+                            "For example, across the European market, ",
+                            dmc.Text("electric car registrations", span=True, fw=800),
+                            " observed an increase in ",
+                            dmc.Text("2023", span=True, fw=800),
+                            " while baseline normalised registrations per unique option followed an opposing trend."
+                            "This suggests that the growth of popularity of electric vehicles is accompanied by a growth in the number of available electric configurations, "
+                            "meaning that the observed increase in adoption may not only reflect an increase in electrified vehicle demand but "
+                            "also a structural change in car market offerings."
+                        ]),
+                        dmc.Text(
+                            [
+                                "The evolution in the number of unique options can be explored in the ",
+                                dmc.Text("Volume", span=True, fw=800),
+                                " page of the dashboard."
+                            ],
+                            fs="italic",
+                            c="dimmed"
+                        )
+                    ], gap="md", m={"base": "sm", "md": "md"}), 
+                    p={"base": "lg", "md": "xl"},
+                    style={
+                        "backgroundColor": "light-dark(white, var(--mantine-color-dark-8))",
+                    },
+                    mb="sm",
+                ),
+            ], gap="md", mt="md"),
+
+            dmc.Stack([
+                dmc.Title("New Car Registrations Market Composition and Market Demand Relative to Available Choice", order=2, fw=900),
+                dmc.Text([
+                    "The three charts compare the market composition across motor energy categories based on raw registrations "
+                    "and normalised values. The normalised metrics provide an indication of ",
+                    dmc.Text("demand", span=True, fw=800),
+                    " as they take into account both registrations and a normalisation factor chosen to approximate market choice. For instance, a power train that "
+                    "maintains a high normalised share after accounting for the number of available options may indicate stronger demand relative to its market offering "
+                    "(i.e. it is both capturing new markets with a broader offering and strengthening its existing base)."
+                ]),
+                dmc.Text([
+                    "Comparing the share of the same motor energy category across the three pies can reveal whether a power train's market share can be "
+                    "attributed to a broad range of available vehicle options or a true consumer preference. "
+                    "Select a year and a country to compare the composition of the passenger car market across motor energy categories."
+                ])
+            ], gap="md", mb="sm"),
+
+            dmc.Card(
+                dmc.Stack([
+                    dmc.Title("Passenger Car Registrations", order=4, fw=800),
+                    
+                ], gap="md", m={"base": "sm", "md": "md"}),
+                p={"base": "lg", "md": "xl"},
+            ),
+
         ], gap="sm")
 
     def render_filters(self, min_year: int, max_year: int, geo_options: list[dict], default_geo: str, suffix: str = "desktop") -> dmc.Stack:
@@ -165,7 +245,7 @@ class OverviewView:
         return dmc.Stack([
             dmc.Card(
                 dmc.Stack([
-                    dmc.Text("TIME PERIOD", ml="xs"),
+                    dmc.Text("TIME PERIOD", ml="xs", size="sm", fw=700),
                     dmc.RangeSlider(
                         id=f"overview-year-slider-{suffix}",
                         min=min_year,
@@ -184,7 +264,7 @@ class OverviewView:
             ),
             dmc.Card(
                 dmc.Stack([
-                    dmc.Text("REGION", ml="xs"),
+                    dmc.Text("REGION", ml="xs", size="sm", fw=700),
                     dmc.Select(
                         id=f"overview-geo-select-{suffix}",
                         data=geo_options,

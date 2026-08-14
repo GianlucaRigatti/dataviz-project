@@ -100,7 +100,7 @@ class VolumeView:
                         gap="md",
                         m={"base": "sm", "md": "md"},
                     ),
-                    p="xl",
+                    p={"base": "lg", "md": "xl"},
                 ),
 
                 dmc.Card(
@@ -140,7 +140,7 @@ class VolumeView:
                         gap="md",
                         m={"base": "sm", "md": "md"},
                     ),
-                    p="xl",
+                    p={"base": "lg", "md": "xl"},
                 ),
             ],
             gap="sm",
@@ -202,6 +202,7 @@ class VolumeView:
                             dmc.Text(
                                 "TIME PERIOD",
                                 ml="xs",
+                                size="sm", fw=700
                             ),
 
                             dmc.RangeSlider(
@@ -231,6 +232,7 @@ class VolumeView:
                             dmc.Text(
                                 "REGION",
                                 ml="xs",
+                                size="sm", fw=700
                             ),
 
                             dmc.Select(
