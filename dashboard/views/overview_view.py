@@ -203,10 +203,33 @@ class OverviewView:
                     },
                     mb="sm",
                 ),
+            ], gap="md", mt="md"),
 
+            dmc.Stack([
                 dmc.Title("New Car Registrations Market Composition and Market Demand Relative to Available Choice", order=2, fw=900),
-                
-            ], gap="md", mt="md")
+                dmc.Text([
+                    "The three charts compare the market composition across motor energy categories based on raw registrations "
+                    "and normalised values. The normalised metrics provide an indication of ",
+                    dmc.Text("demand", span=True, fw=800),
+                    " as they take into account both registrations and a normalisation factor chosen to approximate market choice. For instance, a power train that "
+                    "maintains a high normalised share after accounting for the number of available options may indicate stronger demand relative to its market offering "
+                    "(i.e. it is both capturing new markets with a broader offering and strengthening its existing base)."
+                ]),
+                dmc.Text([
+                    "Comparing the share of the same motor energy category across the three pies can reveal whether a power train's market share can be "
+                    "attributed to a broad range of available vehicle options or a true consumer preference. "
+                    "Select a year and a country to compare the composition of the passenger car market across motor energy categories."
+                ])
+            ], gap="md", mb="sm"),
+
+            dmc.Card(
+                dmc.Stack([
+                    dmc.Title("Passenger Car Registrations", order=4, fw=800),
+                    
+                ], gap="md", m={"base": "sm", "md": "md"}),
+                p={"base": "lg", "md": "xl"},
+            ),
+
         ], gap="sm")
 
     def render_filters(self, min_year: int, max_year: int, geo_options: list[dict], default_geo: str, suffix: str = "desktop") -> dmc.Stack:
