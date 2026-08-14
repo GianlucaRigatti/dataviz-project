@@ -63,9 +63,8 @@ To obtain the final cleaned datasets used for the analyses, first run the `expor
 | 🪐&nbsp;**`4_dataset_graphing_eea_co2_emissions_from_passenger_cars.ipynb`** | Notebook used for generating the figures for the technical report for the preprocessed EEA dataset. |
 | 🪐&nbsp;**`4_null_counts_eea_co2_emissions_from_passenger_cars.ipynb`** | Notebook used for comparing null values counts in the original and preprocessed EEA dataset. |
 | 🪐&nbsp;**`4_time_series_analysis_eea_co2_emissions_from_passenger_cars.ipynb`** | Notebook used for conducting time series analysis on the preprocessed EEA dataset. |
-| 🪐&nbsp;**`autoencoder.ipynb`** | Notebook for training our autoencoder using [`lightning`](https://github.com/lightning-ai/pytorch-lightning). |
+| 🪐&nbsp;**`autoencoder_train.py`** | Script for training our autoencoder using [`lightning`](https://github.com/lightning-ai/pytorch-lightning). |
 | 🪐&nbsp;**`baseline_normalisation.ipynb`** | Notebook for the baseline normalisation approach for the preprocessed EEA dataset to identify user choice. |
-| 🪐&nbsp;**`autoencoder_normalisation.ipynb`** | Notebook for the autoencoder normalisation approach for the preprocessed EEA dataset to estimate utility provided by each motor energy type. |
 | 🐍&nbsp;**`export_co2_to_parquet.py`** | Script for exporting the EEA dataset from CSV to Parquet format. |
 | 🪐&nbsp;**`fg-dp_co2-report_generator.ipynb`** | Notebook for generating the EEA report using [`fg-data-profiling`](https://github.com/data-centric-ai-community/fg-data-profiling). |
 | 🐍&nbsp;**`fg-dp_reports_generator.py`** | Script for generating the Eurostat and UNECE dataset reports using [`fg-data-profiling`](https://github.com/data-centric-ai-community/fg-data-profiling). |

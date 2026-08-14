@@ -4,6 +4,7 @@ from dash_iconify import DashIconify
 class OverviewView:
     def render_content(self, initial_data: list[dict], series_config: list[dict]) -> dmc.Stack:
         series_names = [s["name"] for s in series_config]
+
         legend = dmc.Group([
             dmc.ChipGroup(
                 [
@@ -26,12 +27,21 @@ class OverviewView:
         return dmc.Stack([
             dmc.Stack([
                 dmc.Title("Overview", order=2, fw=900),
-                dmc.Text("Add description here..."),
+                dmc.Text(
+                    "Evolution of passenger car registrations, baseline-normalised "
+                    "market density, and year-specific autoencoder-normalised density."
+                ),
             ], gap="md", mb="sm"),
+
             dmc.Card(
                 dmc.Stack([
-                    dmc.Title("Passenger Car Registrations", order=3),
+                    dmc.Title(
+                        "Passenger Car Registrations",
+                        order=3
+                    ),
+
                     legend,
+
                     dmc.LineChart(
                         id="overview-timeseries-raw-chart",
                         h=200,
@@ -50,16 +60,27 @@ class OverviewView:
                         },
                         strokeWidth=3,
                         dotProps={"r": 4},
-                        activeDotProps={"r": 6, "strokeWidth": 1, "fill": "var(--mantine-color-body)"},
-                        lineChartProps={"syncId": "market-evolution-charts"},
+                        activeDotProps={
+                            "r": 6,
+                            "strokeWidth": 1,
+                            "fill": "var(--mantine-color-body)"
+                        },
+                        lineChartProps={
+                            "syncId": "market-evolution-charts"
+                        },
                     ),
+
                     dmc.Title(
                         [
                             "Baseline Normalisation",
-                            dmc.Text("Total Registrations / Unique Car and Power Train Choices", fs="italic"),
+                            dmc.Text(
+                                "Total Registrations / Unique Car and Power Train Choices",
+                                fs="italic"
+                            ),
                         ],
                         order=3,
                     ),
+
                     dmc.LineChart(
                         id="overview-timeseries-baseline-chart",
                         h=200,
@@ -78,16 +99,27 @@ class OverviewView:
                         },
                         strokeWidth=3,
                         dotProps={"r": 4},
-                        activeDotProps={"r": 6, "strokeWidth": 1, "fill": "var(--mantine-color-body)"},
-                        lineChartProps={"syncId": "market-evolution-charts"},
+                        activeDotProps={
+                            "r": 6,
+                            "strokeWidth": 1,
+                            "fill": "var(--mantine-color-body)"
+                        },
+                        lineChartProps={
+                            "syncId": "market-evolution-charts"
+                        },
                     ),
+
                     dmc.Title(
                         [
                             "Autoencoder Normalisation",
-                            dmc.Text("Total Registrations / Latent Volume", fs="italic"),
+                            dmc.Text(
+                                "Total Registrations / Year-Specific Latent Volume",
+                                fs="italic"
+                            ),
                         ],
                         order=3,
                     ),
+
                     dmc.LineChart(
                         id="overview-timeseries-autoencoder-chart",
                         h=200,
@@ -106,8 +138,14 @@ class OverviewView:
                         },
                         strokeWidth=3,
                         dotProps={"r": 4},
-                        activeDotProps={"r": 6, "strokeWidth": 1, "fill": "var(--mantine-color-body)"},
-                        lineChartProps={"syncId": "market-evolution-charts"},
+                        activeDotProps={
+                            "r": 6,
+                            "strokeWidth": 1,
+                            "fill": "var(--mantine-color-body)"
+                        },
+                        lineChartProps={
+                            "syncId": "market-evolution-charts"
+                        },
                     ),
                 ], gap="md", m={"base": "sm", "md": "md"}),
                 p="xl",

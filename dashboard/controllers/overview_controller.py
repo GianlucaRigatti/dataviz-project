@@ -28,28 +28,31 @@ class OverviewController:
         self.geo_options.insert(0, {"value": "EU27_2020", "label": "European Union (EU27)"})
         self.default_geo = "EU27_2020"
 
-    def _get_chart_payload(self, years: list[int], region: str) -> tuple[list[dict], list[dict], list[dict], dict]:
+    def _get_chart_payload(
+        self,
+        years: list[int],
+        region: str
+    ) -> tuple[list[dict], list[dict], list[dict], dict]:
+
         if not years or not region:
             return [], [], [], {}
 
         min_y, max_y = years
-        
+
         if region == "EU27_2020":
             filtered = self.df[
-                (self.df["TIME_PERIOD"] >= min_y) & 
+                (self.df["TIME_PERIOD"] >= min_y) &
                 (self.df["TIME_PERIOD"] <= max_y)
             ]
         else:
             filtered = self.df[
-                (self.df["geo"] == region) & 
-                (self.df["TIME_PERIOD"] >= min_y) & 
+                (self.df["geo"] == region) &
+                (self.df["TIME_PERIOD"] >= min_y) &
                 (self.df["TIME_PERIOD"] <= max_y)
             ]
 
         if filtered.empty:
             return [], [], [], {}
-
-        # Raw Registrations Chart
 
         pivot_df = filtered.pivot_table(
             index="TIME_PERIOD",
@@ -59,28 +62,49 @@ class OverviewController:
             fill_value=0
         ).reset_index()
 
-        pivot_df.rename(columns={"TIME_PERIOD": "year"}, inplace=True)
-        raw_chart_data = pivot_df.to_dict(orient="records")
+        pivot_df.rename(
+            columns={"TIME_PERIOD": "year"},
+            inplace=True
+        )
 
-        # Baseline Normalisation Chart
+        raw_chart_data = pivot_df.to_dict(
+            orient="records"
+        )
 
-        baseline_factors = extract_baseline_factors(filtered)
-        baseline_summary = compute_baseline_normalization(filtered, factors_df=baseline_factors)
+        baseline_factors = extract_baseline_factors(
+            filtered
+        )
 
-        baseline_summary.rename(columns={"TIME_PERIOD": "year"}, inplace=True)
+        baseline_summary = compute_baseline_normalization(
+            filtered,
+            factors_df=baseline_factors
+        )
+
+        baseline_summary.rename(
+            columns={"TIME_PERIOD": "year"},
+            inplace=True
+        )
 
         wide_df = baseline_summary.pivot(
-            index="year", 
-            columns="Motor energy", 
+            index="year",
+            columns="Motor energy",
             values="baseline_normalized_registrations"
         ).reset_index()
 
-        baseline_chart_data = wide_df.to_dict(orient="records")
+        baseline_chart_data = wide_df.to_dict(
+            orient="records"
+        )
 
-        # Autoencoder Normalisation Chart
-        
-        enriched_pdf = generate_latent_dataframe_pandas(filtered)
-        norm_summary = compute_grid_normalisation(enriched_pdf, grid_size=0.2, min_registrations=10)
+        enriched_pdf = generate_latent_dataframe_pandas(
+            filtered,
+            checkpoint_dir="utils/model/vehicle_autoencoders",
+            device="cpu"
+        )
+
+        norm_summary = compute_grid_normalisation(
+            enriched_pdf,
+            grid_size=0.2,
+        )
 
         autoencoder_pivot = norm_summary.pivot_table(
             index="TIME_PERIOD",
@@ -90,15 +114,27 @@ class OverviewController:
         ).reset_index()
 
         if not autoencoder_pivot.empty:
-            autoencoder_pivot.rename(columns={"TIME_PERIOD": "year"}, inplace=True)
-            autoencoder_chart_data = autoencoder_pivot.to_dict(orient="records")
+            autoencoder_pivot.rename(
+                columns={"TIME_PERIOD": "year"},
+                inplace=True
+            )
+
+            autoencoder_chart_data = (
+                autoencoder_pivot.to_dict(
+                    orient="records"
+                )
+            )
         else:
             autoencoder_chart_data = []
 
         series_config = get_motor_energy_colors()
 
-        return raw_chart_data, baseline_chart_data, autoencoder_chart_data, series_config
-
+        return (
+            raw_chart_data,
+            baseline_chart_data,
+            autoencoder_chart_data,
+            series_config
+        )
     def get_layouts(self) -> tuple[dmc.Stack, dmc.Stack, dmc.Stack]:
         _, _, _, series_config = self._get_chart_payload([self.min_year, self.max_year], self.default_geo)
         
