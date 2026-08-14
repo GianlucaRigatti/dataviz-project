@@ -7,7 +7,7 @@ class VolumeView:
     def render_content(
         self,
         initial_factors_data: list[dict],
-        initial_yoy_data: list[dict],
+        initial_latent_data: list[dict],
         series_config: list[dict],
     ) -> dmc.Stack:
 
@@ -52,10 +52,10 @@ class VolumeView:
                             fw=1000,
                         ),
                         dmc.Text(
-                            "Comparison of conventional market-choice "
-                            "normalisation with year-over-year changes in "
-                            "autoencoder latent-space occupancy."
+                            "Comparison of conventional market-choice normalisation with "
+                            "autoencoder-derived registrations per active latent-space cell."
                         ),
+
                     ],
                     gap="md",
                     mb="sm",
@@ -110,18 +110,19 @@ class VolumeView:
                                 [
                                     "Autoencoder Normalisation Factor",
                                     dmc.Text(
-                                        "Total Registrations / Occupied Latent-Space Volume",
+                                        "Registrations per Active Latent-Space Cell",
                                         fs="italic",
                                     ),
                                 ],
                                 order=3,
                             ),
 
+
                             dmc.LineChart(
-                                id="volume-timeseries-yoy-chart",
+                                id="volume-timeseries-latent-volume-chart",
                                 h=300,
                                 dataKey="year",
-                                data=initial_yoy_data,
+                                data=initial_latent_data,
                                 series=series_config,
                                 withLegend=False,
                                 curveType="monotone",
@@ -134,13 +135,6 @@ class VolumeView:
                                     "strokeWidth": 1,
                                     "fill": "var(--mantine-color-body)",
                                 },
-                                referenceLines=[
-                                    {
-                                        "y": 0,
-                                        "label": "No change",
-                                        "color": "gray.5",
-                                    }
-                                ],
                             ),
                         ],
                         gap="md",

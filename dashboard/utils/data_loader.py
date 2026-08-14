@@ -46,20 +46,12 @@ def get_motor_energy_colors() -> list[dict]:
 # @lru_cache(maxsize=1)
 def generate_latent_dataframe_pandas(
     pdf: pd.DataFrame,
-    checkpoint_dir="utils/model/vehicle_autoencoders",
+    checkpoint_dir="utils/model/vehicle_autoencoder",
     device="cpu",
-    batch_size=65536
+    batch_size=65536,
 ) -> pd.DataFrame:
     """
-    Generate latent coordinates using the autoencoder and scaler belonging
-    to each observation's TIME_PERIOD.
-
-    Each year is processed independently using:
-
-        vehicle_autoencoder_{year}.ckpt
-        scaler_{year}.pt
-
-    This is necessary because every year now has its own autoencoder.
+    Generate latent coordinates using the autoencoder.
     """
 
     if pdf.empty:
@@ -72,6 +64,7 @@ def generate_latent_dataframe_pandas(
     }
 
     missing = required_columns - set(pdf.columns)
+
     if missing:
         raise ValueError(
             f"Latent generation requires columns: {sorted(required_columns)}. "
@@ -81,68 +74,60 @@ def generate_latent_dataframe_pandas(
     checkpoint_dir = Path(checkpoint_dir)
     device_obj = torch.device(device)
 
+    checkpoint_path = (
+        checkpoint_dir / "vehicle_autoencoder.ckpt"
+    )
+
+    if not checkpoint_path.exists():
+        raise FileNotFoundError(
+            f"Global autoencoder checkpoint not found at "
+            f"{checkpoint_path}"
+        )
+
+    model = (
+        VehicleAutoencoder
+        .load_from_checkpoint(
+            str(checkpoint_path)
+        )
+        .to(device_obj)
+    )
+
+    model.eval()
+
+    scaler_path = (
+        checkpoint_dir / "scaler.pt"
+    )
+
+    if not scaler_path.exists():
+        raise FileNotFoundError(
+            f"Global scaler not found at "
+            f"{scaler_path}"
+        )
+
+    scaler_params = torch.load(
+        scaler_path,
+        map_location="cpu",
+        weights_only=False,
+    )
+
+    feature_cols = scaler_params["feature_names"]
+
+    mean = np.asarray(
+        scaler_params["mean"],
+        dtype=np.float32,
+    )
+
+    std = np.asarray(
+        scaler_params["std"],
+        dtype=np.float32,
+    )
+
     result_parts = []
 
-    # Process every TIME_PERIOD with its corresponding model and scaler.
-    for year, year_pdf in pdf.groupby("TIME_PERIOD", sort=True):
-
-        checkpoint_path = (
-            checkpoint_dir / f"vehicle_autoencoder_{year}.ckpt"
-        )
-        scaler_path = (
-            checkpoint_dir / f"scaler_{year}.pt"
-        )
-
-        if not checkpoint_path.exists():
-            raise FileNotFoundError(
-                f"Autoencoder checkpoint for {year} not found at "
-                f"{checkpoint_path}"
-            )
-
-        if not scaler_path.exists():
-            raise FileNotFoundError(
-                f"Scaler for {year} not found at "
-                f"{scaler_path}"
-            )
-
-        # ---------------------------------------------------------------------
-        # Load the model belonging to this year
-        # ---------------------------------------------------------------------
-
-        model = (
-            VehicleAutoencoder
-            .load_from_checkpoint(str(checkpoint_path))
-            .to(device_obj)
-        )
-
-        model.eval()
-
-        # ---------------------------------------------------------------------
-        # Load the scaler belonging to this year
-        # ---------------------------------------------------------------------
-
-        scaler_params = torch.load(
-            scaler_path,
-            map_location="cpu",
-            weights_only=False
-        )
-
-        feature_cols = scaler_params["feature_names"]
-
-        mean = np.asarray(
-            scaler_params["mean"],
-            dtype=np.float32
-        )
-
-        std = np.asarray(
-            scaler_params["std"],
-            dtype=np.float32
-        )
-
-        # ---------------------------------------------------------------------
-        # Apply exactly the same conditional feature transformations that
-        # were used during training.
-        # ---------------------------------------------------------------------
+    for year, year_pdf in pdf.groupby(
+        "TIME_PERIOD",
+        sort=True,
+    ):
 
         year_zeroed = year_pdf.copy()
 
@@ -152,7 +137,7 @@ def generate_latent_dataframe_pandas(
 
         is_ice = year_zeroed["Motor energy"].isin([
             "Petrol (excluding hybrids)",
-            "Diesel (excluding hybrids)"
+            "Diesel (excluding hybrids)",
         ])
 
         year_zeroed.loc[
@@ -170,20 +155,12 @@ def generate_latent_dataframe_pandas(
             "electric_energy_consumption (Wh/km)"
         ] = 0.0
 
-        # ---------------------------------------------------------------------
-        # Remove rows that could not have been used during training.
-        # ---------------------------------------------------------------------
-
         year_dropped = year_zeroed.dropna(
             subset=feature_cols
         ).copy()
 
         if year_dropped.empty:
             continue
-
-        # ---------------------------------------------------------------------
-        # Apply THIS YEAR'S normalisation.
-        # ---------------------------------------------------------------------
 
         X_raw = year_dropped[
             feature_cols
@@ -193,10 +170,6 @@ def generate_latent_dataframe_pandas(
             X_raw - mean
         ) / std
 
-        # ---------------------------------------------------------------------
-        # Encode using THIS YEAR'S autoencoder.
-        # ---------------------------------------------------------------------
-
         latent_coords = []
 
         with torch.no_grad():
@@ -204,54 +177,72 @@ def generate_latent_dataframe_pandas(
             for i in range(
                 0,
                 len(X_scaled),
-                batch_size
+                batch_size,
             ):
 
                 batch_x = torch.tensor(
-                    X_scaled[i:i + batch_size],
+                    X_scaled[
+                        i:i + batch_size
+                    ],
                     dtype=torch.float32,
-                    device=device_obj
+                    device=device_obj,
                 )
 
-                latent = model.encode(batch_x)
+                latent = model.encode(
+                    batch_x
+                )
 
                 latent_coords.append(
-                    latent.detach().cpu().numpy()
+                    latent.detach()
+                    .cpu()
+                    .numpy()
                 )
 
-        latent_matrix = np.vstack(latent_coords)
+        latent_matrix = np.vstack(
+            latent_coords
+        )
 
-        year_dropped["z_1"] = latent_matrix[:, 0]
-        year_dropped["z_2"] = latent_matrix[:, 1]
+        year_dropped["z_1"] = (
+            latent_matrix[:, 0]
+        )
 
-        result_parts.append(year_dropped)
+        year_dropped["z_2"] = (
+            latent_matrix[:, 1]
+        )
 
-    # -------------------------------------------------------------------------
-    # Handle case where no observations survived preprocessing.
-    # -------------------------------------------------------------------------
+        result_parts.append(
+            year_dropped
+        )
 
     if not result_parts:
         result = pdf.iloc[0:0].copy()
-        result["z_1"] = pd.Series(dtype=float)
-        result["z_2"] = pd.Series(dtype=float)
+
+        result["z_1"] = pd.Series(
+            dtype=float
+        )
+
+        result["z_2"] = pd.Series(
+            dtype=float
+        )
+
         return result
 
     return pd.concat(
         result_parts,
-        ignore_index=True
+        ignore_index=True,
     )
 
 # @lru_cache(maxsize=1)
 def compute_grid_normalisation(
     df: pd.DataFrame,
     grid_size: float = 0.2,
-    min_registrations: int = MIN_REGISTRATIONS_DEFAULT
+    min_registrations: int = MIN_REGISTRATIONS_DEFAULT,
 ) -> pd.DataFrame:
     """
-    Computes latent-space volume and registrations normalised by that volume.
+    Computes year-specific latent-space normalisation using the autoencoder.
 
-    Since every TIME_PERIOD now has its own autoencoder, latent volume is
-    calculated independently for each year and motor energy.
+    Grid occupancy is calculated independently for each year and
+    Motor energy category.
 
     normalized_registrations =
         total registrations / active latent-space cells
@@ -281,13 +272,13 @@ def compute_grid_normalisation(
 
     if missing:
         raise ValueError(
-            f"Grid normalisation requires columns: {sorted(required_columns)}. "
+            f"Grid normalisation requires columns: "
+            f"{sorted(required_columns)}. "
             f"Missing: {sorted(missing)}"
         )
 
     pdf = df.copy()
 
-    # Each year's coordinates are discretised within its own latent space.
     pdf["cell_x"] = np.floor(
         pdf["z_1"] / grid_size
     ).astype(int)
@@ -296,34 +287,29 @@ def compute_grid_normalisation(
         pdf["z_2"] / grid_size
     ).astype(int)
 
-    # -------------------------------------------------------------------------
-    # Aggregate registrations by year, powertrain and latent cell.
-    # -------------------------------------------------------------------------
-
     cell_agg = (
         pdf
         .groupby([
             "TIME_PERIOD",
             "Motor energy",
             "cell_x",
-            "cell_y"
+            "cell_y",
         ])
         .agg(
-            cell_registrations=("registrations", "sum"),
+            cell_registrations=(
+                "registrations",
+                "sum",
+            ),
             unique_variants=(
                 "variant",
-                "nunique"
+                "nunique",
             ) if "variant" in pdf.columns else (
                 "registrations",
-                "count"
-            )
+                "count",
+            ),
         )
         .reset_index()
     )
-
-    # -------------------------------------------------------------------------
-    # Only cells with enough registrations count towards latent volume.
-    # -------------------------------------------------------------------------
 
     active_cells = cell_agg[
         cell_agg["cell_registrations"] >= min_registrations
@@ -333,24 +319,26 @@ def compute_grid_normalisation(
         active_cells
         .groupby([
             "TIME_PERIOD",
-            "Motor energy"
+            "Motor energy",
         ])
         .agg(
-            latent_volume=("cell_x", "count"),
-            active_registrations=("cell_registrations", "sum")
+            latent_volume=(
+                "cell_x",
+                "size",
+            ),
+            active_registrations=(
+                "cell_registrations",
+                "sum",
+            ),
         )
         .reset_index()
     )
-
-    # -------------------------------------------------------------------------
-    # Calculate total raw registrations independently for every year.
-    # -------------------------------------------------------------------------
 
     raw_totals = (
         pdf
         .groupby([
             "TIME_PERIOD",
-            "Motor energy"
+            "Motor energy",
         ])["registrations"]
         .sum()
         .reset_index(
@@ -362,14 +350,10 @@ def compute_grid_normalisation(
         raw_totals,
         on=[
             "TIME_PERIOD",
-            "Motor energy"
+            "Motor energy",
         ],
-        how="left"
+        how="left",
     )
-
-    # -------------------------------------------------------------------------
-    # Registrations per occupied latent-space cell.
-    # -------------------------------------------------------------------------
 
     summary["normalized_registrations"] = (
         summary["total_raw_registrations"]
@@ -394,91 +378,6 @@ def compute_active(pdf, min_reg):
     active_cells = cell_agg[cell_agg["cell_registrations"] >= min_reg]
 
     return active_cells, cell_agg
-
-def compute_static_latent_volume(
-    enriched_pdf: pd.DataFrame,
-    grid_size: float = 0.2,
-    min_registrations: int = MIN_REGISTRATIONS_DEFAULT,
-) -> pd.DataFrame:
-    """
-    Calculates latent-space volume separately for every TIME_PERIOD.
-
-    Despite retaining the original function name for compatibility, this is
-    no longer a single static volume across all years. Each year has its own
-    latent space and therefore its own volume.
-    """
-
-    if enriched_pdf.empty:
-        return pd.DataFrame(
-            columns=[
-                "TIME_PERIOD",
-                "motor_energy",
-                "latent_volume"
-            ]
-        )
-
-    required_columns = {
-        "TIME_PERIOD",
-        "Motor energy",
-        "z_1",
-        "z_2",
-        "registrations",
-    }
-
-    missing = required_columns - set(enriched_pdf.columns)
-
-    if missing:
-        raise ValueError(
-            f"Latent volume calculation requires columns: "
-            f"{sorted(required_columns)}. "
-            f"Missing: {sorted(missing)}"
-        )
-
-    pdf = enriched_pdf.copy()
-
-    pdf["cell_x"] = np.floor(
-        pdf["z_1"] / grid_size
-    ).astype(int)
-
-    pdf["cell_y"] = np.floor(
-        pdf["z_2"] / grid_size
-    ).astype(int)
-
-    # Active cells are determined independently within each year/powertrain.
-    cell_agg = (
-        pdf
-        .groupby([
-            "TIME_PERIOD",
-            "Motor energy",
-            "cell_x",
-            "cell_y"
-        ])
-        .agg(
-            cell_registrations=("registrations", "sum")
-        )
-        .reset_index()
-    )
-
-    active_cells = cell_agg[
-        cell_agg["cell_registrations"] >= min_registrations
-    ]
-
-    return (
-        active_cells
-        .groupby([
-            "TIME_PERIOD",
-            "Motor energy"
-        ])
-        .agg(
-            latent_volume=("cell_x", "count")
-        )
-        .reset_index()
-        .rename(
-            columns={
-                "Motor energy": "motor_energy"
-            }
-        )
-    )
 
 def extract_baseline_factors(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -538,14 +437,7 @@ def compute_latent_volumes(
     min_registrations: int = 10,
 ) -> list[dict]:
     """
-    Computes the absolute autoencoder normalisation factor for every
-    TIME_PERIOD and Motor energy.
-
-    Latent volume is the number of sufficiently populated cells in the
-    year's autoencoder latent space.
-
-    The latent coordinates supplied in `df` are already generated using
-    the model and scaler corresponding to each TIME_PERIOD.
+    Computes year-specific autoencoder normalisation factors.
     """
 
     if df.empty:
@@ -563,7 +455,8 @@ def compute_latent_volumes(
 
     if missing:
         raise ValueError(
-            f"Latent normalisation requires columns: {sorted(required_columns)}. "
+            f"Latent normalisation requires columns: "
+            f"{sorted(required_columns)}. "
             f"Missing: {sorted(missing)}"
         )
 
@@ -600,7 +493,8 @@ def compute_latent_volumes(
     ]
 
     volume = (
-        active_cells.groupby(
+        active_cells
+        .groupby(
             [
                 "TIME_PERIOD",
                 "Motor energy",
@@ -616,7 +510,8 @@ def compute_latent_volumes(
     )
 
     registrations = (
-        pdf.groupby(
+        pdf
+        .groupby(
             [
                 "TIME_PERIOD",
                 "Motor energy",
@@ -640,11 +535,17 @@ def compute_latent_volumes(
         how="left",
     )
 
-    summary["latent_volume"] = summary["latent_volume"].astype(float)
+    summary["latent_volume"] = (
+        summary["latent_volume"]
+        .astype(float)
+    )
 
-    summary["normalized_registrations"] = (
+
+    summary["normalized_registrations"] = np.where(
+        summary["latent_volume"] > 0,
         summary["total_registrations"]
-        / summary["latent_volume"]
+        / summary["latent_volume"],
+        np.nan,
     )
 
     powertrains = [
@@ -653,7 +554,9 @@ def compute_latent_volumes(
     ]
 
     years = sorted(
-        pdf["TIME_PERIOD"].dropna().unique()
+        pdf["TIME_PERIOD"]
+        .dropna()
+        .unique()
     )
 
     complete_index = pd.MultiIndex.from_product(
@@ -665,7 +568,8 @@ def compute_latent_volumes(
     )
 
     summary = (
-        summary.set_index(
+        summary
+        .set_index(
             [
                 "TIME_PERIOD",
                 "Motor energy",
@@ -682,4 +586,6 @@ def compute_latent_volumes(
             "latent_volume",
             "normalized_registrations",
         ]
-    ].to_dict(orient="records")
+    ].to_dict(
+        orient="records"
+    )

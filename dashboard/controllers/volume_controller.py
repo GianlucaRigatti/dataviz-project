@@ -68,7 +68,7 @@ class VolumeController:
 
         self.latent_df = generate_latent_dataframe_pandas(
             self.df,
-            checkpoint_dir="utils/model/vehicle_autoencoders",
+            checkpoint_dir="utils/model/vehicle_autoencoder",
             device="cpu",
         )
 
@@ -210,7 +210,7 @@ class VolumeController:
 
         (
             baseline_factors_data,
-            yoy_volume_data,
+            latent_volume_data,
             series_config,
         ) = self._get_chart_payload(
             [self.min_year, self.max_year],
@@ -219,7 +219,7 @@ class VolumeController:
 
         content = self.view.render_content(
             baseline_factors_data,
-            yoy_volume_data,
+            latent_volume_data,
             series_config,
         )
 
@@ -253,7 +253,7 @@ class VolumeController:
                 "data",
             ),
             Output(
-                "volume-timeseries-yoy-chart",
+                "volume-timeseries-latent-volume-chart",
                 "data",
             ),
             Output(
@@ -351,7 +351,7 @@ class VolumeController:
 
             (
                 baseline_factors_data,
-                yoy_volume_data,
+                latent_volume_data,
                 _,
             ) = self._get_chart_payload(
                 active_years,
@@ -364,15 +364,15 @@ class VolumeController:
                 )
             )
 
-            yoy_volume_data = (
+            latent_volume_data = (
                 round_data_to_two_decimals(
-                    yoy_volume_data
+                    latent_volume_data
                 )
             )
 
             return (
                 baseline_factors_data,
-                yoy_volume_data,
+                latent_volume_data,
                 out_year_d,
                 out_year_m,
                 out_geo_d,
@@ -385,7 +385,7 @@ class VolumeController:
                 "series",
             ),
             Output(
-                "volume-timeseries-yoy-chart",
+                "volume-timeseries-latent-volume-chart",
                 "series",
             ),
             Input(

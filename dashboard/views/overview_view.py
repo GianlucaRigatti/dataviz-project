@@ -113,9 +113,10 @@ class OverviewView:
                         [
                             "Autoencoder Normalisation",
                             dmc.Text(
-                                "Total Registrations / Year-Specific Latent Volume",
+                                "Total Registrations / Active Cells in Common Autoencoder Latent Space",
                                 fs="italic"
                             ),
+
                         ],
                         order=3,
                     ),

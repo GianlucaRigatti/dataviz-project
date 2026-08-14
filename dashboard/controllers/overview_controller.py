@@ -97,7 +97,7 @@ class OverviewController:
 
         enriched_pdf = generate_latent_dataframe_pandas(
             filtered,
-            checkpoint_dir="utils/model/vehicle_autoencoders",
+            checkpoint_dir="utils/model/vehicle_autoencoder",
             device="cpu"
         )
 
