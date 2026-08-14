@@ -5,22 +5,10 @@ import pydeck as pdk
 import pandas as pd
 import pycountry
 from dash_iconify import DashIconify
-
+import plotly.express as px
 from views.geo_view import GeoView
 from utils.data_loader import get_dataframe
-
-EU_COORDS = {
-    "AUT": [16.37, 48.20], "BEL": [4.35, 50.85], "BGR": [23.32, 42.69],
-    "HRV": [15.98, 45.81], "CYP": [33.38, 35.18], "CZE": [14.43, 50.07],
-    "DNK": [12.56, 55.67], "EST": [24.75, 59.43], "FIN": [24.93, 60.16],
-    "FRA": [2.35, 48.85], "DEU": [13.40, 52.52], "GRC": [23.72, 37.98],
-    "HUN": [19.04, 47.49], "IRL": [-6.26, 53.34], "ITA": [12.49, 41.90],
-    "LVA": [24.10, 56.94], "LTU": [25.27, 54.68], "LUX": [6.13, 49.61],
-    "MLT": [14.51, 35.89], "NLD": [4.90, 52.36], "POL": [21.01, 52.23],
-    "PRT": [-9.13, 38.72], "ROU": [26.10, 44.42], "SVK": [17.10, 48.14],
-    "SVN": [14.50, 46.05], "ESP": [-3.70, 40.41], "SWE": [18.06, 59.32],
-    "GBR": [-0.12, 51.50], "NOR": [10.75, 59.91], "CHE": [7.44, 46.94]
-}
+import numpy as np
 
 class GeoController:
     def __init__(self):
@@ -30,96 +18,157 @@ class GeoController:
 
     def _load_data(self):
         self.df = get_dataframe()
-        self.geo_df = self.df[~self.df["geo"].isin(["EU27_2020", "EU28", "EU"])].copy()
-        
+
+        self.geo_df = self.df[
+            ~self.df["geo"].isin(["EU27_2020", "EU28", "EU"])
+        ].copy()
+
         def get_iso3(iso2):
-            mapping = {"UK": "GB", "EL": "GR"}
+            mapping = {
+                "UK": "GB",
+                "EL": "GR",
+            }
+
             iso2 = mapping.get(iso2, iso2)
             country = pycountry.countries.get(alpha_2=iso2)
+
             return country.alpha_3 if country else None
-            
+
         self.geo_df["iso3"] = self.geo_df["geo"].apply(get_iso3)
-        self.geo_df["lon"] = self.geo_df["iso3"].apply(lambda x: EU_COORDS.get(x, [None, None])[0])
-        self.geo_df["lat"] = self.geo_df["iso3"].apply(lambda x: EU_COORDS.get(x, [None, None])[1])
-        self.geo_df = self.geo_df.dropna(subset=["lon", "lat"])
+        self.geo_df = self.geo_df.dropna(subset=["iso3"])
 
         self.min_year = int(self.geo_df["TIME_PERIOD"].min())
         self.max_year = int(self.geo_df["TIME_PERIOD"].max())
-        
+
         energies = self.geo_df["Motor energy"].dropna().unique()
-        self.energy_options = [{"value": e, "label": e} for e in energies]
+
+        self.energy_options = [
+            {"value": e, "label": e}
+            for e in energies
+        ]
         self.energy_options.sort(key=lambda x: x["label"])
-        
-        self.default_energy = self.energy_options[0]["value"] if self.energy_options else None
+
+        self.default_energy = (
+            self.energy_options[0]["value"]
+            if self.energy_options
+            else None
+        )
+
         self.default_year = self.max_year
 
-    def _get_deck_payload(self, year: int, energy: str, theme: str = "light"):
+    def _get_choropleth(self, year: int, energy: str, theme: str = "light"):
         if not year or not energy:
-            return dash.no_update
+            return {}
 
         filtered = self.geo_df[
-            (self.geo_df["TIME_PERIOD"] == year) & 
+            (self.geo_df["TIME_PERIOD"] == year) &
             (self.geo_df["Motor energy"] == energy)
         ]
 
-        country_data = filtered.groupby(["Geopolitical entity (reporting)", "lon", "lat"], as_index=False)["registrations"].sum()
-        max_val = self.geo_df["registrations"].max() or 1
-        elevation_scale = 1000000 / max_val if max_val > 0 else 1
-
-        layer = pdk.Layer(
-            "ColumnLayer",
-            data=country_data,
-            get_position=["lon", "lat"],
-            get_elevation="registrations",
-            elevation_scale=elevation_scale,
-            radius=40000,
-            get_fill_color=[34, 139, 230, 200] if theme == "light" else [77, 171, 247, 220],
-            pickable=True,
-            auto_highlight=True,
-            extruded=True,
-        )
-        
-        view_state = pdk.ViewState(
-            latitude=50.0,
-            longitude=10.0,
-            zoom=3.0,
-            pitch=45,
-            bearing=0
+        country_data = (
+            filtered
+            .groupby(
+                ["iso3", "Geopolitical entity (reporting)"],
+                as_index=False
+            )["registrations"]
+            .sum()
         )
 
-        carto_style = (
-            "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
-            if theme == "light"
-            else "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+        country_data["log_registrations"] = np.log10(
+            country_data["registrations"].clip(lower=1)
         )
 
-        deck = pdk.Deck(
-            layers=[layer],
-            initial_view_state=view_state,
-            map_provider="carto",
-            map_style=carto_style,
-            tooltip={"html": "<b>{Geopolitical entity (reporting)}</b><br/>Registrations: {registrations}"}
+        fig = px.choropleth(
+            country_data,
+            locations="iso3",
+            locationmode="ISO-3",
+            color="log_registrations",
+            hover_name="Geopolitical entity (reporting)",
+            color_continuous_scale="Blues",
+            labels={
+                "log_registrations": "Registrations",
+            },
+            projection="natural earth",
         )
 
-        # Return raw Deck.gl JSON object/string directly
-        return deck.to_json()
+        fig.update_traces(
+            hovertemplate=(
+                "<b>%{hovertext}</b><br>"
+                "Registrations: %{customdata:,.0f}"
+                "<extra></extra>"
+            ),
+            customdata=country_data["registrations"],
+        )
 
-    def get_layouts(self) -> tuple[dmc.Stack, dmc.Stack, dmc.Stack]:
-        initial_map_json = self._get_deck_payload(self.default_year, self.default_energy, theme="light")
-        
-        content = self.view.render_content(initial_map_json)
+        fig.update_geos(
+            fitbounds="locations",
+            showland=True,
+            landcolor="#303030" if theme == "dark" else "#EDEDED",
+            showocean=True,
+            oceancolor="#181818" if theme == "dark" else "#FFFFFF",
+            showcountries=True,
+            countrycolor="#777777",
+            showcoastlines=True,
+            coastlinecolor="#777777",
+        )
+
+        tick_values = [
+            1,
+            10,
+            100,
+            1_000,
+            10_000,
+            100_000,
+            1_000_000,
+            10_000_000,
+        ]
+
+        max_registrations = country_data["registrations"].max()
+
+        tick_values = [
+            x for x in tick_values
+            if x <= max_registrations
+        ]
+
+        fig.update_layout(
+            margin=dict(l=0, r=0, t=10, b=0),
+            template="plotly_dark" if theme == "dark" else "plotly_white",
+            coloraxis_colorbar=dict(
+                title="Registrations",
+                tickvals=np.log10(tick_values),
+                ticktext=[f"{x:,.0f}" for x in tick_values],
+                thickness=15,
+            ),
+        )
+
+        return fig
+
+    def get_layouts(self):
+        content = self.view.render_content(None)
+
         filters_desktop = self.view.render_filters(
-            self.min_year, self.max_year, self.energy_options, self.default_year, self.default_energy, suffix="desktop"
+            self.min_year,
+            self.max_year,
+            self.energy_options,
+            self.default_year,
+            self.default_energy,
+            suffix="desktop",
         )
+
         filters_mobile = self.view.render_filters(
-            self.min_year, self.max_year, self.energy_options, self.default_year, self.default_energy, suffix="mobile"
+            self.min_year,
+            self.max_year,
+            self.energy_options,
+            self.default_year,
+            self.default_energy,
+            suffix="mobile",
         )
 
         return content, filters_desktop, filters_mobile
 
     def _register_callbacks(self):
         @callback(
-            Output("geo-map-chart", "data"), # <--- Directly target map data!
+            Output("geo-map-chart", "figure"),
             Output("geo-year-slider-desktop", "value"),
             Output("geo-year-slider-mobile", "value"),
             Output("geo-energy-select-desktop", "value"),
@@ -162,10 +211,14 @@ class GeoController:
             if not active_year or not active_energy:
                 return [dash.no_update] * 5
 
-            updated_deck_json = self._get_deck_payload(active_year, active_energy, theme=current_theme)
+            updated_figure = self._get_choropleth(
+                active_year,
+                active_energy,
+                theme=current_theme
+            )
 
             return (
-                updated_deck_json,
+                updated_figure,
                 out_year_d,
                 out_year_m,
                 out_energy_d,

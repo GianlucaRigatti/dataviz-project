@@ -2,6 +2,7 @@ import dash_mantine_components as dmc
 import dash_deck
 from dash import html, dcc
 from dash_iconify import DashIconify
+import plotly.express as px
 
 class GeoView:
     def render_content(self, initial_deck_json) -> dmc.Stack:
@@ -13,18 +14,12 @@ class GeoView:
             
             dmc.Card(
                 [
-                    dash_deck.DeckGL(
-                        initial_deck_json,
+                    dcc.Graph(
                         id="geo-map-chart",
-                        tooltip=True,
-                        style={"height": "100%", "width": "100%"},
-                        mapboxKey=""
-                    )
-                ],
-                style={"height": "600px", "width": "100%", "position": "relative", "overflow": "hidden"},
-                p=0,
-                withBorder=True,
-                shadow="sm",
+                        responsive=True,
+                        style={"height": "600px"},
+                    ),
+                ]
             )
         ], gap="sm")
 
