@@ -2,7 +2,7 @@ import dash_mantine_components as dmc
 from dash_iconify import DashIconify
 
 class OverviewView:
-    def render_content(self, initial_data: list[dict], series_config: list[dict]) -> dmc.Stack:
+    def render_content(self, series_config: list[dict]) -> dmc.Stack:
         series_names = [s["name"] for s in series_config]
 
         legend = dmc.Group([
@@ -54,7 +54,7 @@ class OverviewView:
                         id="overview-timeseries-raw-chart",
                         h=200,
                         dataKey="year",
-                        data=initial_data,
+                        data=[],
                         series=series_config,
                         withLegend=False,
                         curveType="monotone",
@@ -94,7 +94,7 @@ class OverviewView:
                         id="overview-timeseries-baseline-chart",
                         h=200,
                         dataKey="year",
-                        data=initial_data,
+                        data=[],
                         series=series_config,
                         withLegend=False,
                         curveType="monotone",
@@ -135,7 +135,7 @@ class OverviewView:
                         id="overview-timeseries-autoencoder-chart",
                         h=200,
                         dataKey="year",
-                        data=initial_data,
+                        data=[],
                         series=series_config,
                         withLegend=False,
                         curveType="monotone",
@@ -225,8 +225,76 @@ class OverviewView:
 
             dmc.Card(
                 dmc.Stack([
-                    dmc.Title("Passenger Car Registrations", order=4, fw=800),
-                    
+                    dmc.Group(
+                        [
+                            dmc.Select(
+                                id="overview-pie-year-select",
+                                data=[],
+                                value=None,
+                                w=150,
+                                allowDeselect=False,
+                                searchable=False,
+                                clearable=False,
+                                comboboxProps={"transitionProps": {"transition": "pop", "duration": 200}, "shadow": "sm"},
+                                leftSectionPointerEvents="none",
+                                leftSection=DashIconify(icon="tabler:calendar-stats"),
+                                variant="filled",
+                            )
+                        ],
+                        justify="space-between",
+                        align="flex-end"
+                    ),
+                    dmc.Grid(
+                        [
+                            dmc.GridCol(
+                                dmc.Stack([
+                                    dmc.Title("Title", order=4, fw=800),
+                                    dmc.PieChart(
+                                        id="overview-pie-raw-chart",
+                                        data=[],
+                                        withLabelsLine=True,
+                                        labelsPosition="outside",
+                                        labelsType="percent",
+                                        withLabels=True,
+                                        pieProps={"isAnimationActive": True},
+                                    )
+                                ], align="center", gap="xs"),
+                                span={"base": 12, "md": 4}
+                            ),
+                            dmc.GridCol(
+                                dmc.Stack([
+                                    dmc.Title("Title", order=4, fw=800),
+                                    dmc.PieChart(
+                                        id="overview-pie-baseline-chart",
+                                        data=[],
+                                        withLabelsLine=True,
+                                        labelsPosition="outside",
+                                        labelsType="percent",
+                                        withLabels=True,
+                                        pieProps={"isAnimationActive": True},
+                                    )
+                                ], align="center", gap="xs"),
+                                span={"base": 12, "md": 4}
+                            ),
+                            dmc.GridCol(
+                                dmc.Stack([
+                                    dmc.Title("Title", order=4, fw=800),
+                                    dmc.PieChart(
+                                        id="overview-pie-autoencoder-chart",
+                                        data=[],
+                                        withLabelsLine=True,
+                                        labelsPosition="outside",
+                                        labelsType="percent",
+                                        withLabels=True,
+                                        pieProps={"isAnimationActive": True},
+                                    )
+                                ], align="center", gap="xs"),
+                                span={"base": 12, "md": 4}
+                            ),
+                        ],
+                        gutter="xl",
+                        align="center"
+                    )
                 ], gap="md", m={"base": "sm", "md": "md"}),
                 p={"base": "lg", "md": "xl"},
             ),

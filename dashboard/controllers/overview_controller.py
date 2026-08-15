@@ -138,7 +138,7 @@ class OverviewController:
     def get_layouts(self) -> tuple[dmc.Stack, dmc.Stack, dmc.Stack]:
         _, _, _, series_config = self._get_chart_payload([self.min_year, self.max_year], self.default_geo)
         
-        content = self.view.render_content([], series_config)
+        content = self.view.render_content(series_config)
         filters_desktop = self.view.render_filters(self.min_year, self.max_year, self.geo_options, self.default_geo, suffix="desktop")
         filters_mobile = self.view.render_filters(self.min_year, self.max_year, self.geo_options, self.default_geo, suffix="mobile")
 
@@ -218,3 +218,30 @@ class OverviewController:
                 ]
                 
             return filtered_series, filtered_series, filtered_series
+
+    @callback(
+        Output("overview-pie-year-select", "data"),
+        Output("overview-pie-year-select", "value"),
+        Input("overview-year-slider-desktop", "value"),
+        Input("overview-pie-year-select", "value")
+    )
+    def update_pie_year_options(slider_range, current_select_value):
+        if not slider_range:
+            return dash.no_update, dash.no_update
+            
+        start_year, end_year = slider_range
+        new_options = [
+            {"label": str(y), "value": str(y)} 
+            for y in range(start_year, end_year + 1)
+        ]
+
+        new_value = current_select_value
+        if current_select_value is not None:
+            if int(current_select_value) < start_year:
+                new_value = str(start_year)
+            elif int(current_select_value) > end_year:
+                new_value = str(end_year)
+        else:
+            new_value = str(end_year)
+            
+        return new_options, new_value
