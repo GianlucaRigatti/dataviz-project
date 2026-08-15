@@ -156,8 +156,7 @@ class OverviewController:
             Input("overview-year-slider-desktop", "value"),
             Input("overview-year-slider-mobile", "value"),
             Input("overview-geo-select-desktop", "value"),
-            Input("overview-geo-select-mobile", "value"),
-            prevent_initial_call=True
+            Input("overview-geo-select-mobile", "value")
         )
         def update_chart(year_d, year_m, geo_d, geo_m):
             trigger = ctx.triggered_id

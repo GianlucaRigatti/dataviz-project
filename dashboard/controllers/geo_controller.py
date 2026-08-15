@@ -69,13 +69,13 @@ class GeoController:
         self.energy_options.sort(key=lambda x: x["label"])
         self.default_energy = self.energy_options[0]["value"] if self.energy_options else None
 
-    def _get_choropleth(self, year: int, energy: str, metric: str = "raw", theme: str = "light"):
+    def _get_choropleth(self, year: int, energy: list[str], metric: str = "raw", theme: str = "light"):
         if not year or not energy:
             return {}
 
         filtered = self.geo_df[
             (self.geo_df["TIME_PERIOD"] == year) &
-            (self.geo_df["Motor energy"] == energy)
+            (self.geo_df["Motor energy"].isin(energy))
         ]
 
         country_data = (
@@ -165,8 +165,7 @@ class GeoController:
             Input("geo-metric-select", "value"),
             Input("geo-energy-select-desktop", "value"),
             Input("geo-energy-select-mobile", "value"),
-            Input("color-scheme-switch", "computedColorScheme"),
-            prevent_initial_call=True
+            Input("color-scheme-switch", "computedColorScheme")
         )
         def update_map(year, metric, energy_d, energy_m, theme_state):
             trigger = ctx.triggered_id
