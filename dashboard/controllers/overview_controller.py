@@ -245,3 +245,49 @@ class OverviewController:
             new_value = str(end_year)
             
         return new_options, new_value
+
+    @callback(
+        Output("overview-pie-raw-chart", "data"),
+        Output("overview-pie-baseline-chart", "data"),
+        Output("overview-pie-autoencoder-chart", "data"),
+        Input("overview-pie-year-select", "value"),
+        Input("overview-timeseries-raw-chart", "data"),
+        Input("overview-timeseries-baseline-chart", "data"),
+        Input("overview-timeseries-autoencoder-chart", "data"),
+        Input("overview-series-filter", "value"),
+        prevent_initial_call=True
+    )
+    def update_pie_charts(selected_year, raw_data, baseline_data, autoencoder_data, selected_series):
+        if not selected_year or not raw_data:
+            return dash.no_update, dash.no_update, dash.no_update
+            
+        target_year = int(selected_year)
+        colors_config = get_motor_energy_colors()
+        color_map = {c["name"]: c["color"] for c in colors_config}
+        
+        def extract_pie_data(timeseries_data):
+            if not timeseries_data:
+                return []
+                
+            # Extract the row corresponding to the selected year
+            row = next((item for item in timeseries_data if item.get("year") == target_year), None)
+            if not row:
+                return []
+                
+            pie_data = []
+            for key, value in row.items():
+                if key != "year" and (not selected_series or key in selected_series):
+                    if value and value > 0: 
+                        pie_data.append({
+                            "name": key,
+                            "value": value,
+                            "color": color_map.get(key, "gray.5")
+                        })
+                        
+            return pie_data
+            
+        raw_pie = extract_pie_data(raw_data)
+        baseline_pie = extract_pie_data(baseline_data)
+        autoencoder_pie = extract_pie_data(autoencoder_data)
+        
+        return raw_pie, baseline_pie, autoencoder_pie

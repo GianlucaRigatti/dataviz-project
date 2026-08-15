@@ -26,8 +26,10 @@ class MainView:
                             px="md",
                             children=[
                                 dmc.Group([
-                                    dmc.Title(self.settings.app_name, order=2, fw=900),
-                                ]),
+                                    DashIconify(icon="tabler:basket-share", height=36, color="var(--mantine-color-blue-3)"),
+                                    dmc.Title(self.settings.app_name, order=2, fw=700, display={"base": "none", "sm": "block"}),
+                                    dmc.Title(self.settings.short_app_name, order=2, fw=700, display={"base": "block", "sm": "none"}),
+                                ], align="center", gap="md"),
 
                                 dmc.Group(
                                     [
@@ -105,10 +107,13 @@ class MainView:
 
                     # Main Content Area
                     dmc.AppShellMain(
-                        children=dmc.Box(
-                            id="main-content-container", 
-                            p={"base": "lg", "md": "xl"}
-                        )
+                        children=[
+                            dmc.Box(
+                                id="main-content-container", 
+                                p={"base": "lg", "md": "xl"}
+                            ),
+                            dmc.Space(h="15vh") 
+                        ]
                     ),
                 ],
             ),

@@ -24,6 +24,21 @@ class OverviewView:
             )
         ], justify="right", mb="sm", gap="xs")
 
+        non_interactable_legend = dmc.Group(
+            [
+                dmc.Badge(
+                    s["name"],
+                    size="md",
+                    variant="outline",
+                    color=s["color"].split(".")[0],
+                    leftSection=DashIconify(icon="tabler:circle-filled"),
+                    style={"textTransform": "none", "cursor": "default"} 
+                )
+                for s in series_config
+            ],
+            justify="flex-end", mb="sm", gap="xs"
+        )
+
         return dmc.Stack([
             dmc.Stack([
                 dmc.Title("New Car Registrations Overview", order=2, fw=900),
@@ -48,7 +63,18 @@ class OverviewView:
 
             dmc.Card(
                 dmc.Stack([
-                    dmc.Title("Passenger Car Registrations", order=4, fw=800),
+                    dmc.Title(
+                        [
+                            "Passenger Car Registrations",
+                            dmc.Text(
+                                "Total Registrations",
+                                fs="italic"
+                            ),
+
+                        ],
+                        order=4,
+                        fw=800
+                    ),
                     legend,
                     dmc.LineChart(
                         id="overview-timeseries-raw-chart",
@@ -89,7 +115,6 @@ class OverviewView:
                         order=4,
                         fw=800
                     ),
-
                     dmc.LineChart(
                         id="overview-timeseries-baseline-chart",
                         h=200,
@@ -130,7 +155,6 @@ class OverviewView:
                         order=4,
                         fw=800
                     ),
-
                     dmc.LineChart(
                         id="overview-timeseries-autoencoder-chart",
                         h=200,
@@ -175,7 +199,6 @@ class OverviewView:
                     "category respectively. Comparing these trends helps distinguish whether a power train is gaining registrations because consumers are choosing it "
                     "more frequently, or because the range of available alternatives is changing."
                 ], mb="sm"),
-
                 dmc.Card(
                     dmc.Stack([
                         dmc.Text([
@@ -202,9 +225,8 @@ class OverviewView:
                     style={
                         "backgroundColor": "light-dark(white, var(--mantine-color-dark-8))",
                     },
-                    mb="sm",
                 ),
-            ], gap="md", mt="md"),
+            ], gap="md", mt="md", mb="md"),
 
             dmc.Stack([
                 dmc.Title("New Car Registrations Market Composition and Market Demand Relative to Available Choice", order=2, fw=900),
@@ -215,11 +237,31 @@ class OverviewView:
                     " as they take into account both registrations and a normalisation factor chosen to approximate market choice. For instance, a power train that "
                     "maintains a high normalised share after accounting for the number of available options may indicate stronger demand relative to its market offering "
                     "(i.e. it is both capturing new markets with a broader offering and strengthening its existing base)."
-                ]),
+                ], mb="sm"),
+                dmc.Card(
+                    dmc.Stack([
+                        dmc.Text([
+                            "For instance, a power train that maintains a high normalised share after accounting for the number of available options "
+                            "may indicate stronger demand relative to its market offering ",
+                            dmc.Text("(i.e. it is both capturing new markets with a broader offering and strengthening its existing base)", 
+                                span=True,
+                                fs="italic"
+                            ),
+                            "."
+                        ]),
+                        dmc.Text([
+                            "Comparing the share of the same motor energy category across the three pies can reveal whether a power train's market share can be "
+                            "attributed to a broad range of available vehicle options or can be understood as a true consumer preference."
+                        ])
+                    ], gap="md", m={"base": "sm", "md": "md"}), 
+                    p={"base": "lg", "md": "xl"},
+                    style={
+                        "backgroundColor": "light-dark(white, var(--mantine-color-dark-8))",
+                    },
+                    mb="sm",
+                ),
                 dmc.Text([
-                    "Comparing the share of the same motor energy category across the three pies can reveal whether a power train's market share can be "
-                    "attributed to a broad range of available vehicle options or a true consumer preference. "
-                    "Select a year and a country to compare the composition of the passenger car market across motor energy categories."
+                    "Select a year within the time period and a region to compare the composition of the passenger car market across motor energy categories."
                 ])
             ], gap="md", mb="sm"),
 
@@ -227,28 +269,45 @@ class OverviewView:
                 dmc.Stack([
                     dmc.Group(
                         [
-                            dmc.Select(
-                                id="overview-pie-year-select",
-                                data=[],
-                                value=None,
-                                w=150,
-                                allowDeselect=False,
-                                searchable=False,
-                                clearable=False,
-                                comboboxProps={"transitionProps": {"transition": "pop", "duration": 200}, "shadow": "sm"},
-                                leftSectionPointerEvents="none",
-                                leftSection=DashIconify(icon="tabler:calendar-stats"),
-                                variant="filled",
+                            dmc.Stack(
+                                [
+                                    dmc.Select(
+                                        id="overview-pie-year-select",
+                                        data=[],
+                                        value=None,
+                                        w=150,
+                                        allowDeselect=False,
+                                        searchable=False,
+                                        clearable=False,
+                                        comboboxProps={"transitionProps": {"transition": "pop", "duration": 200}, "shadow": "sm"},
+                                        leftSectionPointerEvents="none",
+                                        leftSection=DashIconify(icon="tabler:calendar-stats"),
+                                        variant="filled",
+                                    ),
+                                    non_interactable_legend,
+                                ],
+                                gap="md", 
+                                align="flex-end"
                             )
                         ],
-                        justify="space-between",
-                        align="flex-end"
+                        justify="flex-end",
                     ),
                     dmc.Grid(
                         [
                             dmc.GridCol(
                                 dmc.Stack([
-                                    dmc.Title("Title", order=4, fw=800),
+                                    dmc.Title(
+                                        [
+                                            "Passenger Car Registrations",
+                                            dmc.Text(
+                                                "Total Registrations",
+                                                fs="italic"
+                                            ),
+                
+                                        ],
+                                        order=4,
+                                        fw=800
+                                    ),
                                     dmc.PieChart(
                                         id="overview-pie-raw-chart",
                                         data=[],
@@ -263,7 +322,17 @@ class OverviewView:
                             ),
                             dmc.GridCol(
                                 dmc.Stack([
-                                    dmc.Title("Title", order=4, fw=800),
+                                    dmc.Title(
+                                        [
+                                            "Baseline Normalisation",
+                                            dmc.Text(
+                                                "Total Registrations / Unique Car Models and Power Train Configurations",
+                                                fs="italic"
+                                            ),
+                                        ],
+                                        order=4,
+                                        fw=800
+                                    ),
                                     dmc.PieChart(
                                         id="overview-pie-baseline-chart",
                                         data=[],
@@ -278,7 +347,18 @@ class OverviewView:
                             ),
                             dmc.GridCol(
                                 dmc.Stack([
-                                    dmc.Title("Title", order=4, fw=800),
+                                    dmc.Title(
+                                        [
+                                            "Autoencoder Normalisation",
+                                            dmc.Text(
+                                                "Total Registrations / Active Cells in Common Autoencoder Latent Space",
+                                                fs="italic"
+                                            ),
+                
+                                        ],
+                                        order=4,
+                                        fw=800
+                                    ),
                                     dmc.PieChart(
                                         id="overview-pie-autoencoder-chart",
                                         data=[],

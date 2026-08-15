@@ -1,4 +1,5 @@
-app_name: "Dashboard"
+app_name: "About Car Market Trends"
+short_app_name: "ACMT"
 debug: true
 server:
   host: "0.0.0.0"
