@@ -34,17 +34,16 @@ class GeoView:
                                             radius="md",
                                             n_clicks=0
                                         ),
-                                        dmc.Slider(
+                                        dmc.RangeSlider(
                                             id="geo-year-slider",
                                             min=min_year,
                                             max=max_year,
-                                            value=max_year,
+                                            value=[min_year, max_year],
                                             step=1,
+                                            minRange=1,
                                             marks=marks,
                                             size="md",
                                             style={"flex": 1},
-                                            mb="md",
-                                            mr="sm"
                                         ),
                                         dcc.Interval(
                                             id="geo-play-interval", 

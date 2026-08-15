@@ -141,7 +141,6 @@ class VolumeController:
         latent_normalization_data = compute_latent_volumes(
             latent_filtered,
             grid_size=0.2,
-            min_registrations=10,
         )
 
         if latent_normalization_data:
