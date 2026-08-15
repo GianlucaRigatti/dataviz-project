@@ -93,9 +93,9 @@ class GeoController:
         )
 
         self.default_energy = (
-            self.energy_options[0]["value"]
-            if self.energy_options
-            else None
+            [e["value"] for e in self.energy_options] 
+            if self.energy_options 
+            else []
         )
 
     def _calculate_country_normalization(
@@ -511,92 +511,25 @@ class GeoController:
             )
 
         @callback(
-            Output(
-                "geo-play-interval",
-                "disabled",
-            ),
-            Output(
-                "geo-play-btn",
-                "children",
-            ),
-            Input(
-                "geo-play-btn",
-                "n_clicks",
-            ),
-            State(
-                "geo-play-interval",
-                "disabled",
-            ),
-            prevent_initial_call=True,
+            Output("geo-play-interval", "disabled"),
+            Output("geo-play-btn", "children"),
+            Input("geo-play-btn", "n_clicks"),
+            State("geo-play-interval", "disabled"),
+            prevent_initial_call=True
         )
-        def toggle_play(
-            _,
-            is_disabled,
-        ):
+        def toggle_play(_, is_disabled):
             if is_disabled:
-                return (
-                    False,
-                    DashIconify(
-                        icon="tabler:player-pause",
-                        width=18,
-                    ),
-                )
-
-            return (
-                True,
-                DashIconify(
-                    icon="tabler:player-play",
-                    width=18,
-                ),
-            )
+                return False, DashIconify(icon="tabler:player-pause", width=18)
+            else:
+                return True, DashIconify(icon="tabler:player-play", width=18)
 
         @callback(
-            Output(
-                "geo-year-slider",
-                "value",
-                allow_duplicate=True,
-            ),
-            Input(
-                "geo-play-interval",
-                "n_intervals",
-            ),
-            State(
-                "geo-year-slider",
-                "value",
-            ),
-            prevent_initial_call=True,
+            Output("geo-year-slider", "value", allow_duplicate=True),
+            Input("geo-play-interval", "n_intervals"),
+            State("geo-year-slider", "value"),
+            prevent_initial_call=True
         )
-        def advance_slider(
-            n_intervals,
-            current_range,
-        ):
-            if not current_range:
-                return dash.no_update
-
-            start_year = int(
-                current_range[0]
-            )
-
-            end_year = int(
-                current_range[-1]
-            )
-
-            width = end_year - start_year
-
-            if end_year < self.max_year:
-                return [
-                    start_year + 1,
-                    end_year + 1,
-                ]
-
-            new_start = self.min_year
-
-            new_end = min(
-                self.min_year + width,
-                self.max_year,
-            )
-
-            return [
-                new_start,
-                new_end,
-            ]
+        def advance_slider(n_intervals, current_year):
+            if current_year >= self.max_year:
+                return self.min_year
+            return current_year + 1
