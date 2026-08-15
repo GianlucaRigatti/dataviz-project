@@ -13,6 +13,7 @@ from utils.data_loader import (
 
 from views.volume_view import VolumeView
 import pandas as pd
+import plotly.graph_objects as go
 
 class VolumeController:
     def __init__(self):
@@ -72,14 +73,14 @@ class VolumeController:
             device="cpu",
         )
 
-    def _get_chart_payload(
-    self,
-    years: list[int],
-    region: str,
-    ) -> tuple[list[dict], list[dict], list[dict]]:
+    def _get_manufacturer_table_data(
+        self,
+        years: list[int],
+        region: str,
+    ) -> list[dict]:
 
         if not years or not region:
-            return [], [], []
+            return []
 
         min_y, max_y = years
 
@@ -96,7 +97,226 @@ class VolumeController:
             ]
 
         if filtered.empty:
-            return [], [], []
+            return []
+
+        manufacturer_df = filtered[
+            [
+                "TIME_PERIOD",
+                "manufacturer_name_eu_standard_denomination",
+                "registrations",
+            ]
+        ].copy()
+
+        manufacturer_df["registrations"] = pd.to_numeric(
+            manufacturer_df["registrations"],
+            errors="coerce",
+        )
+
+        manufacturer_df = manufacturer_df.dropna(
+            subset=[
+                "TIME_PERIOD",
+                "manufacturer_name_eu_standard_denomination",
+                "registrations",
+            ]
+        )
+
+        manufacturer_df = manufacturer_df[
+            manufacturer_df[
+                "manufacturer_name_eu_standard_denomination"
+            ].astype(str).str.strip() != ""
+        ]
+
+        if manufacturer_df.empty:
+            return []
+
+        manufacturer_totals = (
+            manufacturer_df
+            .groupby(
+                [
+                    "TIME_PERIOD",
+                    "manufacturer_name_eu_standard_denomination",
+                ],
+                as_index=False,
+            )
+            .agg(
+                registrations=("registrations", "sum")
+            )
+        )
+
+        manufacturer_totals = manufacturer_totals.sort_values(
+            [
+                "TIME_PERIOD",
+                "registrations",
+                "manufacturer_name_eu_standard_denomination",
+            ],
+            ascending=[
+                True,
+                False,
+                True,
+            ],
+        )
+
+        winners = (
+            manufacturer_totals
+            .drop_duplicates(
+                subset=["TIME_PERIOD"],
+                keep="first",
+            )
+            .sort_values("TIME_PERIOD")
+        )
+
+        return [
+            {
+                "year": int(row["TIME_PERIOD"]),
+                "manufacturer": row[
+                    "manufacturer_name_eu_standard_denomination"
+                ],
+                "registrations": int(row["registrations"]),
+            }
+            for _, row in winners.iterrows()
+        ]
+
+    def _get_latent_scatter_figure(
+        self,
+        years: list[int],
+        region: str,
+    ) -> go.Figure:
+
+        if not years or not region:
+            return go.Figure()
+
+        min_y, max_y = years
+
+        if region == "EU27_2020":
+            filtered = self.latent_df[
+                (self.latent_df["TIME_PERIOD"] >= min_y)
+                & (self.latent_df["TIME_PERIOD"] <= max_y)
+            ]
+        else:
+            filtered = self.latent_df[
+                (self.latent_df["geo"] == region)
+                & (self.latent_df["TIME_PERIOD"] >= min_y)
+                & (self.latent_df["TIME_PERIOD"] <= max_y)
+            ]
+
+        if filtered.empty:
+            return go.Figure()
+
+        fig = go.Figure()
+
+        for series in get_motor_energy_colors():
+
+            motor_energy = series["name"]
+
+            points = filtered[
+                (filtered["Motor energy"] == motor_energy) &
+                (filtered["TIME_PERIOD"] == max_y)
+            ]
+
+            if points.empty:
+                continue
+
+            color_map = {
+                "red.6": "#fa5252",
+                "blue.6": "#4dabf7",
+                "teal.6": "#20c997",
+                "orange.6": "#fd7e14",
+                "cyan.6": "#15aabf",
+                "gray.6": "#868e96",
+            }
+
+            color = color_map.get(
+                series["color"],
+                "#868e96",
+            )
+
+            fig.add_trace(
+                go.Scattergl(
+                    x=points["z_1"],
+                    y=points["z_2"],
+                    mode="markers",
+                    name=motor_energy,
+                    marker={
+                        "color": color,
+                        "size": 5,
+                        "opacity": 0.55,
+                    },
+                    customdata=points[
+                        [
+                            "TIME_PERIOD",
+                            "registrations",
+                            "manufacturer_name_eu_standard_denomination",
+                            "commercial_name",
+                        ]
+                    ].values,
+                    hovertemplate=(
+                        "<b>%{fullData.name}</b><br>"
+                        "Year: %{customdata[0]}<br>"
+                        "Registrations: %{customdata[1]:,}<br>"
+                        "Manufacturer: %{customdata[2]}<br>"
+                        "Model: %{customdata[3]}<br>"
+                        "Latent X: %{x:.2f}<br>"
+                        "Latent Y: %{y:.2f}"
+                        "<extra></extra>"
+                    ),
+                )
+            )
+
+        fig.update_layout(
+            template="plotly_dark",
+            height=500,
+            margin={
+                "l": 20,
+                "r": 20,
+                "t": 20,
+                "b": 20,
+            },
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            xaxis={
+                "title": "Latent Dimension 1",
+                "zeroline": False,
+            },
+            yaxis={
+                "title": "Latent Dimension 2",
+                "zeroline": False,
+            },
+            legend={
+                "orientation": "h",
+                "yanchor": "bottom",
+                "y": 1.02,
+                "xanchor": "right",
+                "x": 1,
+            },
+        )
+
+        return fig
+
+    def _get_chart_payload(
+        self,
+        years: list[int],
+        region: str,
+    ) -> tuple[list[dict], list[dict], list[dict], go.Figure, list[dict]]:
+
+        if not years or not region:
+            return [], [], [], []
+
+        min_y, max_y = years
+
+        if region == "EU27_2020":
+            filtered = self.df[
+                (self.df["TIME_PERIOD"] >= min_y)
+                & (self.df["TIME_PERIOD"] <= max_y)
+            ]
+        else:
+            filtered = self.df[
+                (self.df["geo"] == region)
+                & (self.df["TIME_PERIOD"] >= min_y)
+                & (self.df["TIME_PERIOD"] <= max_y)
+            ]
+
+        if filtered.empty:
+            return [], [], [], []
 
         baseline_factors = extract_baseline_factors(
             filtered
@@ -195,11 +415,23 @@ class VolumeController:
         else:
             latent_normalization_chart_data = []
 
+        manufacturer_table_data = self._get_manufacturer_table_data(
+            years,
+            region,
+        )
+
+        latent_scatter_figure = self._get_latent_scatter_figure(
+            years,
+            region,
+        )
+
         series_config = get_motor_energy_colors()
 
         return (
             baseline_factors_data,
             latent_normalization_chart_data,
+            manufacturer_table_data,
+            latent_scatter_figure,
             series_config,
         )
 
@@ -210,6 +442,8 @@ class VolumeController:
         (
             baseline_factors_data,
             latent_volume_data,
+            manufacturer_table_data,
+            latent_scatter_figure,
             series_config,
         ) = self._get_chart_payload(
             [self.min_year, self.max_year],
@@ -219,6 +453,8 @@ class VolumeController:
         content = self.view.render_content(
             baseline_factors_data,
             latent_volume_data,
+            manufacturer_table_data,
+            latent_scatter_figure,
             series_config,
         )
 
@@ -254,6 +490,14 @@ class VolumeController:
             Output(
                 "volume-timeseries-latent-volume-chart",
                 "data",
+            ),
+            Output(
+                "volume-manufacturer-table",
+                "children",
+            ),
+            Output(
+                "volume-latent-scatter-chart",
+                "figure",
             ),
             Output(
                 "volume-year-slider-desktop",
@@ -343,14 +587,16 @@ class VolumeController:
                 out_geo_m = dash.no_update
 
             else:
-                return [dash.no_update] * 6
+                return [dash.no_update] * 8
 
             if not active_years or not active_geo:
-                return [dash.no_update] * 6
+                return [dash.no_update] * 8
 
             (
                 baseline_factors_data,
                 latent_volume_data,
+                manufacturer_table_data,
+                latent_scatter_figure,
                 _,
             ) = self._get_chart_payload(
                 active_years,
@@ -363,6 +609,10 @@ class VolumeController:
                 )
             )
 
+            manufacturer_table = self.view.render_manufacturer_table(
+                manufacturer_table_data
+            )
+
             latent_volume_data = (
                 round_data_to_two_decimals(
                     latent_volume_data
@@ -372,6 +622,8 @@ class VolumeController:
             return (
                 baseline_factors_data,
                 latent_volume_data,
+                manufacturer_table,
+                latent_scatter_figure,
                 out_year_d,
                 out_year_m,
                 out_geo_d,

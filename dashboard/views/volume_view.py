@@ -1,6 +1,6 @@
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
-
+from dash import dcc
 
 class VolumeView:
 
@@ -8,6 +8,8 @@ class VolumeView:
         self,
         initial_factors_data: list[dict],
         initial_latent_data: list[dict],
+        initial_manufacturer_table_data: list[dict],
+        initial_latent_scatter_figure,
         series_config: list[dict],
     ) -> dmc.Stack:
 
@@ -47,15 +49,16 @@ class VolumeView:
                 dmc.Stack(
                     [
                         dmc.Title(
-                            "Normalisation Factors & Latent Volume",
+                            "Baseline & Autoencoder Normalisation Factors",
                             order=2,
                             fw=1000,
                         ),
                         dmc.Text(
-                            "Comparison of conventional market-choice normalisation with "
-                            "autoencoder-derived registrations per active latent-space cell."
+                            "The Baseline Normalisation Factor shows how many different vehicle configurations are available within each motor energy category. A configuration is considered different when its model name, engine capacity, or engine power changes. This gives an indication of how much variety is available to consumers, independently of how many vehicles were actually registered. " \
                         ),
-
+                        dmc.Text(
+                            "The Autoencoder Normalisation Factor looks at the same registrations from a different perspective. Instead of counting distinct configurations, it measures how many registrations are represented by each active area of the autoencoder's latent space. In simple terms, given an autoencoder learns to compress information, it shows us how hard it was for the model to compress physical characteristics relative to a specific motor energy type, the harder it was for the model, the more spread out the points, the more market choice is actually available to the consumer from a utilitarian perspective."
+                        ),
                     ],
                     gap="md",
                     mb="sm",
@@ -142,9 +145,123 @@ class VolumeView:
                     ),
                     p={"base": "lg", "md": "xl"},
                 ),
+
+                dmc.Card(
+                    dmc.Stack(
+                        [
+                            dmc.Title(
+                                [
+                                    "Most Popular Manufacturer",
+                                    dmc.Text(
+                                        "This graph is meant to provide an insight into what the most popular car brands were for a specific region in a specific timeframe.",
+                                    ),
+                                ],
+                                order=3,
+                            ),
+
+                            dmc.Table(
+                                [
+                                    dmc.TableThead(
+                                        dmc.TableTr(
+                                            [
+                                                dmc.TableTh("Year"),
+                                                dmc.TableTh("Most Popular Manufacturer"),
+                                                dmc.TableTh(
+                                                    "Registrations",
+                                                    style={"textAlign": "right"},
+                                                ),
+                                            ]
+                                        )
+                                    ),
+                                    dmc.TableTbody(
+                                        id="volume-manufacturer-table",
+                                        children=[
+                                            dmc.TableTr(
+                                                [
+                                                    dmc.TableTd(row["year"]),
+                                                    dmc.TableTd(row["manufacturer"]),
+                                                    dmc.TableTd(
+                                                        f'{row["registrations"]:,}',
+                                                        style={"textAlign": "right"},
+                                                    ),
+                                                ]
+                                            )
+                                            for row in initial_manufacturer_table_data
+                                        ],
+                                    ),
+                                ],
+                                striped=True,
+                                highlightOnHover=True,
+                                withTableBorder=True,
+                                horizontalSpacing="md",
+                                verticalSpacing="sm",
+                            )
+                        ],
+                        gap="md",
+                        m={"base": "sm", "md": "md"},
+                    ),
+                    p={"base": "lg", "md": "xl"},
+                ),
+                                dmc.Card(
+                    dmc.Stack(
+                        [
+                            dmc.Title(
+                                [
+                                    "Vehicle Characteristics in Latent Space",
+                                    dmc.Text(
+                                        "Each point represents a vehicle configuration, coloured by motor energy, only last year selected in the filter shown for performance reasons.",
+                                        fs="italic",
+                                    ),
+                                ],
+                                order=3,
+                            ),
+
+                            dmc.Text(
+                                "The points are positioned according to the two-dimensional "
+                                "representation learned by the autoencoder. Vehicles with "
+                                "similar characteristics tend to appear closer together, "
+                                "making broad patterns in the different motor energy categories "
+                                "visible without performing any explicit clustering."
+                            ),
+
+                            dcc.Graph(
+                                id="volume-latent-scatter-chart",
+                                figure=initial_latent_scatter_figure,
+                                config={
+                                    "displayModeBar": False,
+                                },
+                                style={
+                                    "width": "100%",
+                                    "height": "500px",
+                                },
+                            ),
+                        ],
+                        gap="md",
+                        m={"base": "sm", "md": "md"},
+                    ),
+                    p={"base": "lg", "md": "xl"},
+                ),
             ],
             gap="sm",
         )
+
+    def render_manufacturer_table(
+        self,
+        table_data: list[dict],
+    ):
+        return [
+            dmc.TableTr(
+                [
+                    dmc.TableTd(row["year"]),
+                    dmc.TableTd(row["manufacturer"]),
+                    dmc.TableTd(
+                        f'{row["registrations"]:,}',
+                        style={"textAlign": "right"},
+                    ),
+                ]
+            )
+            for row in table_data
+        ]
 
     def render_filters(
         self,
