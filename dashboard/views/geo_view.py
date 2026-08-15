@@ -15,7 +15,7 @@ class GeoView:
         return dmc.Stack([
             dmc.Stack([
                 dmc.Title("Geographical Distribution", order=2, fw=900),
-                dmc.Text("Add description here..."),
+                dmc.Text("This map shows how new passenger car registrations are distributed across European countries. Use the time period, motor energy, and metric filters to explore how registrations vary between countries and over time. The map can display raw registrations or the two normalised measures introduced in the Overview, allowing you to compare the geographical distribution of different power train types."),
             ], gap="md", mb="xs"),
 
             dmc.Card(
