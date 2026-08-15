@@ -43,7 +43,7 @@ class OverviewView:
             dmc.Stack([
                 dmc.Title("New Car Registrations Overview", order=2, fw=900),
                 dmc.Text([
-                    "Explore the adoption of electrified power trains in the European passenger car market over time. "
+                    "This dashboard explores the adoption of electrified power trains in the European passenger car market over time. "
                     "The charts compare the total raw number of registrations extracted from the ",
                     dmc.Anchor(
                         "EEA's Monitoring of CO2 emissions from passenger cars Regulation (EU) 2019/631", 
