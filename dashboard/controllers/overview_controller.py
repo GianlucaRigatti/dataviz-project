@@ -136,7 +136,7 @@ class OverviewController:
             series_config
         )
     def get_layouts(self) -> tuple[dmc.Stack, dmc.Stack, dmc.Stack]:
-        _, _, _, series_config = self._get_chart_payload([self.min_year, self.max_year], self.default_geo)
+        series_config = get_motor_energy_colors()
         
         content = self.view.render_content(series_config)
         filters_desktop = self.view.render_filters(self.min_year, self.max_year, self.geo_options, self.default_geo, suffix="desktop")
