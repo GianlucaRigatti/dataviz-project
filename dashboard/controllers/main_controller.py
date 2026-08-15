@@ -28,30 +28,33 @@ class MainController:
     def _register_callbacks(self):
         @callback(
             Output("url", "pathname"),
-            Input("desktop-nav-tabs", "value"),
-            Input("mobile-nav-segmented", "value"),
-            State("url", "pathname"),
-            prevent_initial_call=True,
-        )
-        def navigate_on_segment_change(desktop_val, mobile_val, current_path):
-            trigger = ctx.triggered_id
-            
-            selected_path = desktop_val if trigger == "desktop-nav-tabs" else mobile_val
-
-            if selected_path and selected_path != current_path:
-                return selected_path
-            return dash.no_update
-
-        @callback(
             Output("main-content-container", "children"),
             Output("filters-controls-desktop", "children"),
             Output("filters-controls-mobile", "children"),
+            Output("desktop-nav-tabs", "value"),
+            Output("mobile-nav-segmented", "value"),
             Input("url", "pathname"),
+            Input("desktop-nav-tabs", "value"),
+            Input("mobile-nav-segmented", "value"),
         )
-        def render_page_content(pathname):
-            controller = self.pages.get(pathname, self.pages["/"])
+        def sync_navigation_and_render(url_path, desktop_val, mobile_val):
+            trigger = ctx.triggered_id
+
+            if trigger == "desktop-nav-tabs":
+                target_path = desktop_val
+            elif trigger == "mobile-nav-segmented":
+                target_path = mobile_val
+            else:
+                target_path = url_path if url_path else "/"
+
+            controller = self.pages.get(target_path, self.pages["/"])
             content_layout, filters_desktop, filters_mobile = controller.get_layouts()
-            return content_layout, filters_desktop, filters_mobile
+            
+            new_url = target_path if trigger in ["desktop-nav-tabs", "mobile-nav-segmented"] else dash.no_update
+            new_desktop = target_path if desktop_val != target_path else dash.no_update
+            new_mobile = target_path if mobile_val != target_path else dash.no_update
+
+            return new_url, content_layout, filters_desktop, filters_mobile, new_desktop, new_mobile
 
     clientside_callback(
         """
