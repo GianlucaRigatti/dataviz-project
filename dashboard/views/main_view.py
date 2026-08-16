@@ -26,10 +26,10 @@ class MainView:
                             px="md",
                             children=[
                                 dmc.Group([
-                                    DashIconify(icon="tabler:basket-share", height=36, color="var(--mantine-color-blue-3)"),
-                                    dmc.Title(self.settings.app_name, order=2, fw=700, display={"base": "none", "sm": "block"}),
-                                    dmc.Title(self.settings.short_app_name, order=2, fw=700, display={"base": "block", "sm": "none"}),
-                                ], align="center", gap="md"),
+                                    DashIconify(icon="tabler:template-filled", height=36, color="var(--mantine-color-blue-3)"),
+                                    dmc.Title(self.settings.app_name, order=2, fw=800, display={"base": "none", "sm": "block"}),
+                                    dmc.Title(self.settings.short_app_name, order=2, fw=800, display={"base": "block", "sm": "none"}),
+                                ], align="center", gap="sm"),
 
                                 dmc.Group(
                                     [

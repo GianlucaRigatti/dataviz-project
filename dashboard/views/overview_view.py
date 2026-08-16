@@ -43,21 +43,24 @@ class OverviewView:
             dmc.Stack([
                 dmc.Title("New Car Registrations Overview", order=2, fw=900),
                 dmc.Text([
-                    "This dashboard explores the adoption of electrified power trains in the European passenger car market over time. "
-                    "The charts compare the total raw number of registrations extracted from the ",
+                    "This dashboard uses data from the ",
                     dmc.Anchor(
-                        "EEA's Monitoring of CO2 emissions from passenger cars Regulation (EU) 2019/631", 
-                        href="https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c9b3267c02b", 
+                        "EEA's Monitoring of CO2 emissions from passenger cars Regulation (EU) 2019/631",
+                        href="https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c9b3267c02b",
                         target="_blank",
-                        underline = "not-hover",
+                        underline="not-hover",
                     ),
-                    " dataset with the ones obtained through a baseline normalisation and an autoencoder-based normalisation procedure which aim to provide "
+                    ", which have been preprocessed to investigate the adoption of electrified power trains in the European passenger car market over time. "
+                ], fs="italic", c="dimmed", size="sm", mb="sm"),
+                dmc.Text([
+                    "The charts compare the total raw number of registrations extracted from the EEA dataset with the ones obtained through a baseline "
+                    "normalisation and an autoencoder-based normalisation procedure which aim to provide "
                     "a more accurate metric that accounts for the market choice available to the consumer when purchasing a new car."
                 ]),
                 dmc.Text([
-                    "This we believe has an effect on the adoption of a specific power train type, as the technical characteristics and number of available models "
-                    "provides consumers with more opportunities to decide for a specific motor energy category. "
-                    "Use the filters to explore individual countries or the EU as a whole, adjust the time period window and select the power trains to compare."
+                    "This we believe has an effect on the adoption of a specific motor energy category, as the technical characteristics and number of available models "
+                    "offer consumers more opportunities to to select that power train. "
+                    "Use the filters to explore individual countries or the EU as a whole, adjust the time period window and select the motor energy categories to compare."
                 ])
             ], gap="md", mb="sm"),
 
@@ -187,16 +190,23 @@ class OverviewView:
             ),
 
             dmc.Stack([
-                    dmc.Title("How to Read the Charts", order=3, fw=800),
-                    dmc.Text("The three charts provide complementary views of the market. "),
-
-                    dmc.Text([dmc.Text("Passenger Car Registrations", span=True, fw=800), " shows the number of new vehicles registered. "]),
-
-                    dmc.Text([dmc.Text("Baseline Normalisation", span=True, fw=800),
-                    " adjusts registrations according to the number of different vehicle and powertrain combinations available. This helps distinguish changes in registrations from changes in the range of products being     offered. "]),
-
-                    dmc.Text([dmc.Text("Autoencoder Normalisation", span=True, fw=800),
-                    " takes this idea a step further. Vehicle characteristics such as model, engine size and power are used to create a map of the available cars. Similar cars are placed close together, while cars with  substantially different characteristics occupy different areas of the map. The map is divided into a grid, and the occupied areas provide an estimate of how much market choice is available for each    powertrain."]),
+                dmc.Title("How to Read the Charts", order=3, fw=800),
+                dmc.Text([
+                    "The three charts provide complementary views of the market. ",
+                    dmc.Text("Passenger Car Registrations", span=True, fw=800),
+                    " shows the number of new vehicles registered. ",
+                    dmc.Text("Baseline Normalisation", span=True, fw=800),
+                    " adjusts registrations according to the number of different vehicle models and power train combinations available, "
+                    "which helps distinguish actual changes in registration numbers from changes in the range of products being offered. ",
+                    dmc.Text("Autoencoder Normalisation", span=True, fw=800),
+                    " captures the diversity of the available vehicles in terms of their technical characteristics. "
+                    "In a map, similar cars are represented close together, while cars with substantially different characteristics are placed further apart. "
+                    "The map is then divided into a grid, and the number of occupied areas provide an estimate of how much market choice is available for each motor energy category.",
+                ]),
+                dmc.Text([
+                    "Comparing these trends helps reveal whether a motor energy category's growth in registrations is happening because consumers are choosing it "
+                    "more frequently, because the type and range of vehicles being offered are changing or a combination of both."
+                ], mb="sm"),
                 dmc.Card(
                     dmc.Stack([
                         dmc.Text([
@@ -204,7 +214,7 @@ class OverviewView:
                             dmc.Text("electric car registrations", span=True, fw=800),
                             " observed an increase in ",
                             dmc.Text("2023", span=True, fw=800),
-                            " while baseline normalised registrations per unique option followed an opposing trend."
+                            " while baseline normalised registrations per unique option followed an opposing trend. "
                             "This suggests that the growth of popularity of electric vehicles is accompanied by a growth in the number of available electric configurations, "
                             "meaning that the observed increase in adoption may not only reflect an increase in electrified vehicle demand but "
                             "also a structural change in car market offerings."
@@ -231,10 +241,8 @@ class OverviewView:
                 dmc.Text([
                     "The three charts compare the market composition across motor energy categories based on raw registrations "
                     "and normalised values. The normalised metrics provide an indication of ",
-                    dmc.Text("demand", span=True, fw=800),
-                    " as they take into account both registrations and a normalisation factor chosen to approximate market choice. For instance, a power train that "
-                    "maintains a high normalised share after accounting for the number of available options may indicate stronger demand relative to its market offering "
-                    "(i.e. it is both capturing new markets with a broader offering and strengthening its existing base)."
+                    dmc.Text("consumer demand", span=True, fw=800),
+                    " as they take into account both registrations and a normalisation factor chosen to approximate market choice."
                 ], mb="sm"),
                 dmc.Card(
                     dmc.Stack([
