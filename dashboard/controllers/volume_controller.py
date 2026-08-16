@@ -48,15 +48,21 @@ class VolumeController:
         )
 
     def _get_manufacturer_table_data(self, years: list[int], region: str) -> list[dict]:
+
         if not years or not region:
             return []
 
         min_y, max_y = years
 
         if region == "EU27_2020":
-            filtered = self.df[(self.df["TIME_PERIOD"] >= min_y) & (self.df["TIME_PERIOD"] <= max_y)]
+            filtered = self.df[
+                self.df["TIME_PERIOD"].between(min_y, max_y)
+            ].copy()
         else:
-            filtered = self.df[(self.df["geo"] == region) & (self.df["TIME_PERIOD"] >= min_y) & (self.df["TIME_PERIOD"] <= max_y)]
+            filtered = self.df[
+                (self.df["geo"] == region)
+                & self.df["TIME_PERIOD"].between(min_y, max_y)
+            ].copy()
 
         if filtered.empty:
             return []
@@ -82,15 +88,26 @@ class VolumeController:
             ]
         )
 
+        manufacturer_df[
+            "manufacturer_name_eu_standard_denomination"
+        ] = (
+            manufacturer_df[
+                "manufacturer_name_eu_standard_denomination"
+            ]
+            .astype(str)
+            .str.strip()
+        )
+
         manufacturer_df = manufacturer_df[
             manufacturer_df[
                 "manufacturer_name_eu_standard_denomination"
-            ].astype(str).str.strip() != ""
+            ] != ""
         ]
 
         if manufacturer_df.empty:
             return []
 
+        # Aggregate registrations by year and manufacturer
         manufacturer_totals = (
             manufacturer_df
             .groupby(
@@ -105,6 +122,7 @@ class VolumeController:
             )
         )
 
+        # Sort manufacturers within each year
         manufacturer_totals = manufacturer_totals.sort_values(
             [
                 "TIME_PERIOD",
@@ -118,25 +136,35 @@ class VolumeController:
             ],
         )
 
-        winners = (
+        # Keep the top 3 manufacturers for each year
+        top_three = (
             manufacturer_totals
-            .drop_duplicates(
-                subset=["TIME_PERIOD"],
-                keep="first",
-            )
-            .sort_values("TIME_PERIOD")
+            .groupby("TIME_PERIOD", sort=True)
+            .head(3)
         )
 
-        return [
-            {
-                "year": int(row["TIME_PERIOD"]),
-                "manufacturer": row[
-                    "manufacturer_name_eu_standard_denomination"
-                ],
-                "registrations": int(row["registrations"]),
-            }
-            for _, row in winners.iterrows()
-        ]
+        result = []
+        for year, year_df in top_three.groupby(
+            "TIME_PERIOD",
+            sort=True,
+        ):
+            top_manufacturers = [
+                (
+                    row[
+                        "manufacturer_name_eu_standard_denomination"
+                    ],
+                    int(row["registrations"]),
+                )
+                for _, row in year_df.iterrows()
+            ]
+
+            result.append(
+                {
+                    "year": int(year),
+                    "top_manufacturers": top_manufacturers,
+                }
+            )
+        return result
 
     def _get_latent_scatter_figure(self, years: list[int], region: str) -> go.Figure:
         if not years or not region:

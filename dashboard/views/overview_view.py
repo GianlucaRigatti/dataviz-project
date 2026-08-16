@@ -162,7 +162,7 @@ class OverviewView:
                                             ),
                                             dmc.PopoverDropdown(
                                                 dmc.Text(
-                                                    "The 'Alternative/Other' category may be omitted due to insufficient data for model training.",
+                                                    "The 'Alternative/Other' category may be omitted due to insufficient registration data.",
                                                     size="sm"
                                                 ),
                                                 style={
@@ -396,7 +396,7 @@ class OverviewView:
                                                             ),
                                                             dmc.PopoverDropdown(
                                                                 dmc.Text(
-                                                                    "The 'Alternative/Other' category may be omitted due to insufficient data for model training.",
+                                                                    "The 'Alternative/Other' category may be omitted due to insufficient registration data.",
                                                                     size="sm"
                                                                 ),
                                                                 style={

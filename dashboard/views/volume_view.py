@@ -52,7 +52,6 @@ class VolumeView:
                         "available to the consumer from a utilitarian perspective. "
                     ]),
                 ], gap="md", mb="sm"),
-
                 dmc.Card(
                     dmc.Stack([
                         dmc.Title(
@@ -108,7 +107,7 @@ class VolumeView:
                                                 ),
                                                 dmc.PopoverDropdown(
                                                     dmc.Text(
-                                                        "The 'Alternative/Other' category may be omitted due to insufficient data for model training.",
+                                                        "The 'Alternative/Other' category may be omitted due to insufficient registration data.",
                                                         size="sm"
                                                     ),
                                                     style={
@@ -159,76 +158,85 @@ class VolumeView:
                     p={"base": "lg", "md": "xl"},
                 ),
 
+                dmc.Stack([
+                    dmc.Title("Top 3 Manufacturers by Year", order=2, fw=900),
+                    dmc.Text("The leading manufacturers by new passenger car registrations for each year."),
+                ], gap="md", mt="md", mb="sm"),
+                dmc.Card(
+                    dmc.Stack([
+                        dmc.Grid([
+                            dmc.GridCol(
+                                dmc.Table(
+                                    [
+                                        dmc.TableThead(
+                                            dmc.TableTr([
+                                                dmc.TableTh("Year"),
+                                                dmc.TableTh("Top 3 Manufacturers (Registrations)"),
+                                            ])
+                                        ),
+                                        dmc.TableTbody(
+                                            id="volume-manufacturer-table",
+                                            children=self.render_manufacturer_table(initial_manufacturer_table_data),
+                                        ),
+                                    ],
+                                    striped=True,
+                                    highlightOnHover=True,
+                                    withTableBorder=True,
+                                    horizontalSpacing="sm",
+                                    verticalSpacing="xs",
+                                ),
+                                span={"base": 12, "md": 7},
+                            ),
+                            
+                            dmc.GridCol(
+                                dmc.Stack([
+                                    dmc.Title("What the Manufacturer Rankings Reveal", order=3, fw=800),
+                                    dmc.Text(
+                                        "Comparing the ranking across years makes it possible to identify changes or stability in the passenger car market structure.", 
+                                        mb="sm"
+                                    ),
+                                    dmc.Card(
+                                        dmc.Stack([
+                                            dmc.Text([
+                                                "In particular, the appearance of new manufacturers in the top three may indicate the emergence of new players, that "
+                                                "have been able to better capture and respond to the shifts in consumer needs."
+                                            ]),
+                                        ], gap="md", m={"base": "sm", "md": "md"}), 
+                                        p={"base": "lg", "md": "xl"},
+                                        style={
+                                            "backgroundColor": "light-dark(white, var(--mantine-color-dark-8))",
+                                        },
+                                        mb="sm"
+                                    ),
+                                    dmc.Text(
+                                        [
+                                            dmc.Text("Note", span=True, fw=800),
+                                            ": Manufacturer names may change over time due to mergers, "
+                                            "acquisitions, or rebranding. As a result, comparability of manufacturers across years may be affected."
+                                        ],
+                                        fs="italic",
+                                        c="dimmed",
+                                    ),
+                                ], gap="md"),
+                                span={"base": 12, "md": 5},
+                            ),
+                        ], gutter="xl"),
+                    ], gap="md", m={"base": "sm", "md": "md"}),
+                    p={"base": "lg", "md": "xl"},
+                ),
+
+                dmc.Stack([
+                    dmc.Title("Vehicle Characteristics in the Latent Space", order=2, fw=900),
+                    dmc.Text(
+                        "Each point represents a vehicle configuration, coloured by motor energy category, only the last year of the selected time period filtered is shown for performance reasons.",
+                        fs="italic",
+                        c="dimmed",
+                        size="sm"
+                    ),
+                ], gap="md", mt="md", mb="sm"),
                 dmc.Card(
                     dmc.Stack(
                         [
-                            dmc.Title(
-                                [
-                                    "Most Popular Manufacturer",
-                                    dmc.Text(
-                                        "This graph is meant to provide an insight into what the most popular car brands were for a specific region in a specific timeframe.",
-                                    ),
-                                ],
-                                order=3,
-                            ),
-
-                            dmc.Table(
-                                [
-                                    dmc.TableThead(
-                                        dmc.TableTr(
-                                            [
-                                                dmc.TableTh("Year"),
-                                                dmc.TableTh("Most Popular Manufacturer"),
-                                                dmc.TableTh(
-                                                    "Registrations",
-                                                    style={"textAlign": "right"},
-                                                ),
-                                            ]
-                                        )
-                                    ),
-                                    dmc.TableTbody(
-                                        id="volume-manufacturer-table",
-                                        children=[
-                                            dmc.TableTr(
-                                                [
-                                                    dmc.TableTd(row["year"]),
-                                                    dmc.TableTd(row["manufacturer"]),
-                                                    dmc.TableTd(
-                                                        f'{row["registrations"]:,}',
-                                                        style={"textAlign": "right"},
-                                                    ),
-                                                ]
-                                            )
-                                            for row in initial_manufacturer_table_data
-                                        ],
-                                    ),
-                                ],
-                                striped=True,
-                                highlightOnHover=True,
-                                withTableBorder=True,
-                                horizontalSpacing="md",
-                                verticalSpacing="sm",
-                            )
-                        ],
-                        gap="md",
-                        m={"base": "sm", "md": "md"},
-                    ),
-                    p={"base": "lg", "md": "xl"},
-                ),
-                                dmc.Card(
-                    dmc.Stack(
-                        [
-                            dmc.Title(
-                                [
-                                    "Vehicle Characteristics in Latent Space",
-                                    dmc.Text(
-                                        "Each point represents a vehicle configuration, coloured by motor energy, only last year selected in the filter shown for performance reasons.",
-                                        fs="italic",
-                                    ),
-                                ],
-                                order=3,
-                            ),
-
                             dmc.Text(
                                 "The points are positioned according to the two-dimensional "
                                 "representation learned by the autoencoder. Vehicles with "
@@ -258,21 +266,33 @@ class VolumeView:
             gap="sm",
         )
 
-    def render_manufacturer_table(
-        self,
-        table_data: list[dict],
-    ):
+    def render_manufacturer_table(self, table_data: list[dict]):
         return [
-            dmc.TableTr(
-                [
-                    dmc.TableTd(row["year"]),
-                    dmc.TableTd(row["manufacturer"]),
-                    dmc.TableTd(
-                        f'{row["registrations"]:,}',
-                        style={"textAlign": "right"},
-                    ),
-                ]
-            )
+            dmc.TableTr([
+                dmc.TableTd(
+                    row["year"],
+                    style={
+                        "fontWeight": 600,
+                        "whiteSpace": "nowrap",
+                    },
+                ),
+                dmc.TableTd(
+                    dmc.Text([
+                            child
+                            for i, (manufacturer, registrations)
+                            in enumerate(row["top_manufacturers"])
+                            for child in [
+                                dmc.Text(
+                                    manufacturer,
+                                    span=True,
+                                    fw=600,
+                                ),
+                                f" ({registrations:,})",
+                                ", " if i < len(row["top_manufacturers"]) - 1 else "",
+                            ]
+                    ], size="xs"),
+                ),
+            ])
             for row in table_data
         ]
 
