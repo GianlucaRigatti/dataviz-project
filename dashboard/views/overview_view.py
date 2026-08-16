@@ -147,7 +147,7 @@ class OverviewView:
                         [
                             "Autoencoder Normalisation",
                             dmc.Text(
-                                "Total Registrations / Active Cells in Common Autoencoder Latent Space",
+                                "Total Registrations / Available Market Choice",
                                 fs="italic"
                             ),
 
@@ -187,18 +187,16 @@ class OverviewView:
             ),
 
             dmc.Stack([
-                dmc.Title("How to Read the Charts", order=3, fw=800),
-                dmc.Text([
-                    "The three charts provide complementary views of the market. ",
-                    dmc.Text("Passenger Car Registrations", span=True, fw=800),
-                    " shows the number of new vehicles registered, while the ",
-                    dmc.Text("Baseline Normalisation", span=True, fw=800),
-                    " and ",
-                    dmc.Text("Autoencoder Normalisation", span=True, fw=800),
-                    " account for the variety of vehicle options (engine power, engine size and model) available and utility offered for each motor energy "
-                    "category respectively. Comparing these trends helps distinguish whether a power train is gaining registrations because consumers are choosing it "
-                    "more frequently, or because the range of available alternatives is changing."
-                ], mb="sm"),
+                    dmc.Title("How to Read the Charts", order=3, fw=800),
+                    dmc.Text("The three charts provide complementary views of the market. "),
+
+                    dmc.Text([dmc.Text("Passenger Car Registrations", span=True, fw=800), " shows the number of new vehicles registered. "]),
+
+                    dmc.Text([dmc.Text("Baseline Normalisation", span=True, fw=800),
+                    " adjusts registrations according to the number of different vehicle and powertrain combinations available. This helps distinguish changes in registrations from changes in the range of products being     offered. "]),
+
+                    dmc.Text([dmc.Text("Autoencoder Normalisation", span=True, fw=800),
+                    " takes this idea a step further. Vehicle characteristics such as model, engine size and power are used to create a map of the available cars. Similar cars are placed close together, while cars with  substantially different characteristics occupy different areas of the map. The map is divided into a grid, and the occupied areas provide an estimate of how much market choice is available for each    powertrain."]),
                 dmc.Card(
                     dmc.Stack([
                         dmc.Text([
@@ -351,7 +349,7 @@ class OverviewView:
                                         [
                                             "Autoencoder Normalisation",
                                             dmc.Text(
-                                                "Total Registrations / Active Cells in Common Autoencoder Latent Space",
+                                                "Total Registrations / Available Market Choice",
                                                 fs="italic"
                                             ),
                 
