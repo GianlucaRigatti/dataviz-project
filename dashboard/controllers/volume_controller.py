@@ -23,20 +23,10 @@ class VolumeController:
 
     def _load_data(self):
         self.df = get_dataframe()
+        self.min_year = int(self.df["TIME_PERIOD"].min())
+        self.max_year = int(self.df["TIME_PERIOD"].max())
 
-        self.min_year = int(
-            self.df["TIME_PERIOD"].min()
-        )
-
-        self.max_year = int(
-            self.df["TIME_PERIOD"].max()
-        )
-
-        geo_df = self.df[
-            ~self.df["geo"].isin(
-                ["EU27_2020", "EU28", "EU"]
-            )
-        ][
+        geo_df = self.df[~self.df["geo"].isin(["EU27_2020", "EU28", "EU"])][
             [
                 "geo",
                 "Geopolitical entity (reporting)"
@@ -44,27 +34,11 @@ class VolumeController:
         ].drop_duplicates()
 
         self.geo_options = [
-            {
-                "value": row["geo"],
-                "label": row[
-                    "Geopolitical entity (reporting)"
-                ],
-            }
+            {"value": row["geo"], "label": row["Geopolitical entity (reporting)"]}
             for _, row in geo_df.iterrows()
         ]
-
-        self.geo_options.sort(
-            key=lambda x: x["label"]
-        )
-
-        self.geo_options.insert(
-            0,
-            {
-                "value": "EU27_2020",
-                "label": "European Union (EU27)",
-            },
-        )
-
+        self.geo_options.sort(key=lambda x: x["label"])
+        self.geo_options.insert(0, {"value": "EU27_2020", "label": "European Union (EU27)"})
         self.default_geo = "EU27_2020"
 
         self.latent_df = generate_latent_dataframe_pandas(
@@ -73,28 +47,16 @@ class VolumeController:
             device="cpu",
         )
 
-    def _get_manufacturer_table_data(
-        self,
-        years: list[int],
-        region: str,
-    ) -> list[dict]:
-
+    def _get_manufacturer_table_data(self, years: list[int], region: str) -> list[dict]:
         if not years or not region:
             return []
 
         min_y, max_y = years
 
         if region == "EU27_2020":
-            filtered = self.df[
-                (self.df["TIME_PERIOD"] >= min_y)
-                & (self.df["TIME_PERIOD"] <= max_y)
-            ]
+            filtered = self.df[(self.df["TIME_PERIOD"] >= min_y) & (self.df["TIME_PERIOD"] <= max_y)]
         else:
-            filtered = self.df[
-                (self.df["geo"] == region)
-                & (self.df["TIME_PERIOD"] >= min_y)
-                & (self.df["TIME_PERIOD"] <= max_y)
-            ]
+            filtered = self.df[(self.df["geo"] == region) & (self.df["TIME_PERIOD"] >= min_y) & (self.df["TIME_PERIOD"] <= max_y)]
 
         if filtered.empty:
             return []
@@ -176,12 +138,7 @@ class VolumeController:
             for _, row in winners.iterrows()
         ]
 
-    def _get_latent_scatter_figure(
-        self,
-        years: list[int],
-        region: str,
-    ) -> go.Figure:
-
+    def _get_latent_scatter_figure(self, years: list[int], region: str) -> go.Figure:
         if not years or not region:
             return go.Figure()
 
@@ -292,35 +249,21 @@ class VolumeController:
 
         return fig
 
-    def _get_chart_payload(
-        self,
-        years: list[int],
-        region: str,
-    ) -> tuple[list[dict], list[dict], list[dict], go.Figure, list[dict]]:
-
+    def _get_chart_payload(self, years: list[int], region: str) -> tuple[list[dict], list[dict], list[dict], go.Figure, list[dict]]:
         if not years or not region:
             return [], [], [], []
 
         min_y, max_y = years
 
         if region == "EU27_2020":
-            filtered = self.df[
-                (self.df["TIME_PERIOD"] >= min_y)
-                & (self.df["TIME_PERIOD"] <= max_y)
-            ]
+            filtered = self.df[(self.df["TIME_PERIOD"] >= min_y) & (self.df["TIME_PERIOD"] <= max_y)]
         else:
-            filtered = self.df[
-                (self.df["geo"] == region)
-                & (self.df["TIME_PERIOD"] >= min_y)
-                & (self.df["TIME_PERIOD"] <= max_y)
-            ]
+            filtered = self.df[(self.df["geo"] == region) & (self.df["TIME_PERIOD"] >= min_y) & (self.df["TIME_PERIOD"] <= max_y)]
 
         if filtered.empty:
             return [], [], [], []
 
-        baseline_factors = extract_baseline_factors(
-            filtered
-        )
+        baseline_factors = extract_baseline_factors(filtered)
 
         baseline_wide = (
             baseline_factors
@@ -347,27 +290,14 @@ class VolumeController:
         )
 
         if region == "EU27_2020":
-            latent_filtered = self.latent_df[
-                (self.latent_df["TIME_PERIOD"] >= min_y)
-                & (self.latent_df["TIME_PERIOD"] <= max_y)
-            ]
+            latent_filtered = self.latent_df[(self.latent_df["TIME_PERIOD"] >= min_y) & (self.latent_df["TIME_PERIOD"] <= max_y)]
         else:
-            latent_filtered = self.latent_df[
-                (self.latent_df["geo"] == region)
-                & (self.latent_df["TIME_PERIOD"] >= min_y)
-                & (self.latent_df["TIME_PERIOD"] <= max_y)
-            ]
+            latent_filtered = self.latent_df[(self.latent_df["geo"] == region) & (self.latent_df["TIME_PERIOD"] >= min_y) & (self.latent_df["TIME_PERIOD"] <= max_y)]
 
-        latent_normalization_data = compute_latent_volumes(
-            latent_filtered,
-            grid_size=0.2,
-        )
+        latent_normalization_data = compute_latent_volumes(latent_filtered, grid_size=0.2)
 
         if latent_normalization_data:
-
-            latent_df = pd.DataFrame(
-                latent_normalization_data
-            )
+            latent_df = pd.DataFrame(latent_normalization_data)
 
             latent_wide = (
                 latent_df
@@ -387,25 +317,15 @@ class VolumeController:
                 inplace=True,
             )
 
-            all_years = pd.DataFrame(
-                {
-                    "year": range(
-                        min_y,
-                        max_y + 1,
-                    )
-                }
-            )
-
+            all_years = pd.DataFrame({"year": range(min_y, max_y + 1)})
             latent_wide = all_years.merge(
                 latent_wide,
                 on="year",
                 how="left",
             )
-
             latent_wide = latent_wide.sort_values(
                 "year"
             )
-
             latent_normalization_chart_data = (
                 latent_wide.to_dict(
                     orient="records"
@@ -415,16 +335,8 @@ class VolumeController:
         else:
             latent_normalization_chart_data = []
 
-        manufacturer_table_data = self._get_manufacturer_table_data(
-            years,
-            region,
-        )
-
-        latent_scatter_figure = self._get_latent_scatter_figure(
-            years,
-            region,
-        )
-
+        manufacturer_table_data = self._get_manufacturer_table_data(years, region)
+        latent_scatter_figure = self._get_latent_scatter_figure(years, region)
         series_config = get_motor_energy_colors()
 
         return (
@@ -435,9 +347,7 @@ class VolumeController:
             series_config,
         )
 
-    def get_layouts(
-        self
-    ) -> tuple[dmc.Stack, dmc.Stack, dmc.Stack]:
+    def get_layouts(self) -> tuple[dmc.Stack, dmc.Stack, dmc.Stack]:
 
         (
             baseline_factors_data,
@@ -483,63 +393,21 @@ class VolumeController:
     def _register_callbacks(self):
 
         @callback(
-            Output(
-                "volume-timeseries-factors-chart",
-                "data",
-            ),
-            Output(
-                "volume-timeseries-latent-volume-chart",
-                "data",
-            ),
-            Output(
-                "volume-manufacturer-table",
-                "children",
-            ),
-            Output(
-                "volume-latent-scatter-chart",
-                "figure",
-            ),
-            Output(
-                "volume-year-slider-desktop",
-                "value",
-            ),
-            Output(
-                "volume-year-slider-mobile",
-                "value",
-            ),
-            Output(
-                "volume-geo-select-desktop",
-                "value",
-            ),
-            Output(
-                "volume-geo-select-mobile",
-                "value",
-            ),
-            Input(
-                "volume-year-slider-desktop",
-                "value",
-            ),
-            Input(
-                "volume-year-slider-mobile",
-                "value",
-            ),
-            Input(
-                "volume-geo-select-desktop",
-                "value",
-            ),
-            Input(
-                "volume-geo-select-mobile",
-                "value",
-            ),
+            Output("volume-timeseries-factors-chart", "data"),
+            Output("volume-timeseries-latent-volume-chart", "data"),
+            Output("volume-manufacturer-table", "children"),
+            Output("volume-latent-scatter-chart", "figure"),
+            Output("volume-year-slider-desktop", "value"),
+            Output("volume-year-slider-mobile", "value"),
+            Output("volume-geo-select-desktop", "value"),
+            Output("volume-geo-select-mobile", "value"),
+            Input("volume-year-slider-desktop", "value"),
+            Input("volume-year-slider-mobile", "value"),
+            Input("volume-geo-select-desktop", "value"),
+            Input("volume-geo-select-mobile", "value"),
             prevent_initial_call=True,
         )
-        def update_chart(
-            year_d,
-            year_m,
-            geo_d,
-            geo_m,
-        ):
-
+        def update_chart(year_d, year_m, geo_d, geo_m):
             trigger = ctx.triggered_id
 
             if trigger == "volume-year-slider-desktop":
@@ -631,30 +499,17 @@ class VolumeController:
             )
 
         @callback(
-            Output(
-                "volume-timeseries-factors-chart",
-                "series",
-            ),
-            Output(
-                "volume-timeseries-latent-volume-chart",
-                "series",
-            ),
-            Input(
-                "volume-series-filter",
-                "value",
-            ),
+            Output("volume-timeseries-factors-chart", "series"),
+            Output("volume-timeseries-latent-volume-chart", "series"),
+            Input("volume-series-filter", "value"),
             prevent_initial_call=True,
         )
-        def sync_chart_series(
-            selected_series_names
-        ):
-
+        def sync_chart_series(selected_series_names):
             if not selected_series_names:
                 return [], []
 
             filtered_series = [
-                s
-                for s in get_motor_energy_colors()
+                s for s in get_motor_energy_colors()
                 if s["name"] in selected_series_names
             ]
 

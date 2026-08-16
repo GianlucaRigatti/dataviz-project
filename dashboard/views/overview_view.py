@@ -146,17 +146,44 @@ class OverviewView:
                         },
                     ),
 
-                    dmc.Title(
+                    dmc.Stack(
                         [
-                            "Autoencoder Normalisation",
+                            dmc.Group(
+                                [
+                                    dmc.Title("Autoencoder Normalisation", order=4, fw=800),
+                                    dmc.Popover(
+                                        [
+                                            dmc.PopoverTarget(
+                                                DashIconify(
+                                                    icon="tabler:info-square-rounded", 
+                                                    width=20,
+                                                    style={"cursor": "pointer", "color": "var(--mantine-color-dimmed)"}
+                                                )
+                                            ),
+                                            dmc.PopoverDropdown(
+                                                dmc.Text(
+                                                    "The 'Alternative/Other' category may be omitted due to insufficient data for model training.",
+                                                    size="sm"
+                                                ),
+                                                style={
+                                                    "backgroundColor": "light-dark(white, var(--mantine-color-dark-8))",
+                                                }
+                                            ),
+                                        ],
+                                        width=250,
+                                        position="bottom",
+                                        withArrow=True,
+                                        shadow="lg",
+                                    )
+                                ],
+                                gap="xs"
+                            ),
                             dmc.Text(
                                 "Total Registrations / Available Market Choice",
-                                fs="italic"
+                                fs="italic",
                             ),
-
                         ],
-                        order=4,
-                        fw=800
+                        gap=0,
                     ),
                     dmc.LineChart(
                         id="overview-timeseries-autoencoder-chart",
@@ -353,17 +380,48 @@ class OverviewView:
                             ),
                             dmc.GridCol(
                                 dmc.Stack([
-                                    dmc.Title(
+                                    dmc.Stack(
                                         [
-                                            "Autoencoder Normalisation",
+                                            dmc.Group(
+                                                [
+                                                    dmc.Title("Autoencoder Normalisation", order=4, fw=800),
+                                                    dmc.Popover(
+                                                        [
+                                                            dmc.PopoverTarget(
+                                                                DashIconify(
+                                                                    icon="tabler:info-square-rounded",
+                                                                    width=20,
+                                                                    style={"cursor": "pointer", "color": "var(--mantine-color-dimmed)"}
+                                                                )
+                                                            ),
+                                                            dmc.PopoverDropdown(
+                                                                dmc.Text(
+                                                                    "The 'Alternative/Other' category may be omitted due to insufficient data for model training.",
+                                                                    size="sm"
+                                                                ),
+                                                                style={
+                                                                    "backgroundColor": "light-dark(white, var(--mantine-color-dark-8))",
+                                                                }
+                                                            ),
+                                                        ],
+                                                        width=250,
+                                                        position="bottom",
+                                                        withArrow=True,
+                                                        shadow="lg",
+                                                    )
+                                                ],
+                                                justify="center",
+                                                align="center",
+                                                gap="xs"
+                                            ),
                                             dmc.Text(
                                                 "Total Registrations / Available Market Choice",
-                                                fs="italic"
+                                                fs="italic",
+                                                ta="center",
                                             ),
-                
                                         ],
-                                        order=4,
-                                        fw=800
+                                        gap=0,
+                                        align="center"
                                     ),
                                     dmc.PieChart(
                                         id="overview-pie-autoencoder-chart",
