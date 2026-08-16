@@ -3,7 +3,7 @@ from dash import dcc
 from dash_iconify import DashIconify
 
 class GeoView:
-    def render_content(self, min_year: int, max_year: int) -> dmc.Stack:
+    def render_content(self, min_year: int, max_year: int, series_config: list) -> dmc.Stack:
         year_diff = max_year - min_year
         label_interval = 5 if year_diff >= 15 else (3 if year_diff >= 6 else 1)
 
@@ -12,11 +12,25 @@ class GeoView:
             is_labeled = (y == min_year) or (y == max_year) or ((y - min_year) % label_interval == 0)
             marks.append({"value": y, "label": str(y)} if is_labeled else {"value": y})
 
+        non_interactable_legend = dmc.Group(
+            [
+                dmc.Badge(
+                    s["name"],
+                    size="md",
+                    variant="outline",
+                    color=s["color"].split(".")[0],
+                    leftSection=DashIconify(icon="tabler:circle-filled"),
+                    style={"textTransform": "none", "cursor": "default"} 
+                )
+                for s in series_config
+            ],
+            justify="flex-end", mb="sm", gap="xs"
+        )
+
         return dmc.Stack([
             dmc.Stack([
-                dmc.Title("Geographical Distribution", order=2, fw=900),
-                dmc.Text("This map shows how new passenger car registrations are distributed across European countries. Use the time period, motor energy, and metric filters to explore how registrations vary between countries and over time. The map can display raw registrations or the two normalised measures introduced in the Overview, allowing you to compare the geographical distribution of different power train types."),
-            ], gap="md", mb="xs"),
+                dmc.Title("Geographical Distribution of New Car Registrations across the European Union", order=2, fw=900),
+            ], gap="md", mb="sm"),
 
             dmc.Card(
                 dmc.Stack([
@@ -119,7 +133,139 @@ class GeoView:
                 ], gap="md", m={"base": "sm", "md": "md"}, style={"height": "100%"}),
                 p={"base": "lg", "md": "xl"},
                 h={"base": 450, "md": 650},
-            )
+            ),
+
+            dmc.Stack([
+                dmc.Text([
+                    "This page shows how new passenger car registrations are distributed across European countries for selected motor energies and year. "
+                    "The map can display raw registrations or the two normalised measures introduced in the ",
+                    dmc.Text("Overview", span=True, fw=800),
+                    " page, allowing for a geographical understanding of the distribution of new cars across the European Union."
+                ]),
+            ], gap="md", mt="sm"),
+
+            dmc.Stack([
+                dmc.Title("Predominant Motor Energy across the European Union", order=2, fw=900),
+                dmc.Text([
+                    "These maps show the predominant motor energy category in each country based on total registrations and the two normalised measures. "
+                    "Comparing the maps highlights whether the dominant power train changes when differences in motor energy availability are taken into account."
+                ]),
+            ], gap="md", mt="md", mb="sm"),
+
+            dmc.Card(
+                dmc.Stack([
+                    dmc.Group(
+                        [
+                            dmc.Stack(
+                                [
+                                    dmc.Select(
+                                        id="geo-predominant-maps-year-select",
+                                        data=[
+                                            {"label": str(y), "value": str(y)} 
+                                            for y in range(min_year, max_year + 1)
+                                        ],
+                                        value=str(max_year),
+                                        w=150,
+                                        allowDeselect=False,
+                                        searchable=False,
+                                        clearable=False,
+                                        comboboxProps={"transitionProps": {"transition": "pop", "duration": 200}, "shadow": "sm"},
+                                        leftSectionPointerEvents="none",
+                                        leftSection=DashIconify(icon="tabler:calendar-stats"),
+                                        variant="filled",
+                                    ),
+                                    non_interactable_legend,
+                                ],
+                                gap="md", 
+                                align="flex-end"
+                            )
+                        ],
+                        justify="flex-end",
+                    ),
+                    dmc.Grid(
+                        [
+                            dmc.GridCol(
+                                dmc.Stack([
+                                    dmc.Title(
+                                        [
+                                            "Passenger Car Registrations",
+                                            dmc.Text(
+                                                "Total Registrations",
+                                                fs="italic"
+                                            ),
+                
+                                        ],
+                                        order=4,
+                                        fw=800
+                                    ),
+                                    dcc.Graph(
+                                        id="geo-predominant-maps-raw-chart",
+                                        responsive=True,
+                                        style={
+                                            "height": "250px",
+                                            "width": "100%",
+                                        },
+                                    ),
+                                ], align="center", gap="xs"),
+                                span={"base": 12, "md": 4}
+                            ),
+                            dmc.GridCol(
+                                dmc.Stack([
+                                    dmc.Title(
+                                        [
+                                            "Baseline Normalisation",
+                                            dmc.Text(
+                                                "Total Registrations / Unique Car Models and Power Train Configurations",
+                                                fs="italic"
+                                            ),
+                                        ],
+                                        order=4,
+                                        fw=800
+                                    ),
+                                    dcc.Graph(
+                                        id="geo-predominant-maps-baseline-chart",
+                                        responsive=True,
+                                        style={
+                                            "height": "250px",
+                                            "width": "100%",
+                                        },
+                                    ),
+                                ], align="center", gap="xs"),
+                                span={"base": 12, "md": 4}
+                            ),
+                            dmc.GridCol(
+                                dmc.Stack([
+                                    dmc.Title(
+                                        [
+                                            "Autoencoder Normalisation",
+                                            dmc.Text(
+                                                "Total Registrations / Available Market Choice",
+                                                fs="italic"
+                                            ),
+                
+                                        ],
+                                        order=4,
+                                        fw=800
+                                    ),
+                                    dcc.Graph(
+                                        id="geo-predominant-maps-autoencoder-chart",
+                                        responsive=True,
+                                        style={
+                                            "height": "250px",
+                                            "width": "100%",
+                                        }
+                                    )
+                                ], align="center", gap="xs"),
+                                span={"base": 12, "md": 4}
+                            ),
+                        ],
+                        gutter="xl",
+                        align="center"
+                    )
+                ], gap="md", m={"base": "sm", "md": "md"}),
+                p={"base": "lg", "md": "xl"},
+            ),
+            
         ], gap="sm")
 
     def render_filters(self, energy_options: list[dict], default_energy: str | list, suffix: str = "desktop") -> dmc.Stack:

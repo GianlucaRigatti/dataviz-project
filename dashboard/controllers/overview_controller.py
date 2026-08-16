@@ -135,6 +135,7 @@ class OverviewController:
             autoencoder_chart_data,
             series_config
         )
+    
     def get_layouts(self) -> tuple[dmc.Stack, dmc.Stack, dmc.Stack]:
         series_config = get_motor_energy_colors()
         

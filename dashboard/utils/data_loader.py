@@ -43,6 +43,17 @@ def get_motor_energy_colors() -> list[dict]:
         }
     ]
 
+@lru_cache(maxsize=1)
+def get_motor_energy_plotly_colors() -> dict[str, str]:
+    return {
+        "Petrol (excluding hybrids)": "#E03131",
+        "Diesel (excluding hybrids)": "#228BE6",
+        "Electricity": "#12B886",
+        "Petrol hybrid": "#FD7E14",
+        "Diesel hybrid": "#15AABF",
+        "Alternative/Other": "#868E96",
+    }
+
 # @lru_cache(maxsize=1)
 def generate_latent_dataframe_pandas(
     pdf: pd.DataFrame,
