@@ -3,6 +3,59 @@ from dash import dcc
 from dash_iconify import DashIconify
 
 class GeoView:
+
+    def _render_purples_legend(self) -> dmc.Stack:
+        purples = [
+            "#fcfbfd",
+            "#efedf5",
+            "#dadaeb",
+            "#bcbddc",
+            "#9e9ac8",
+            "#807dba",
+            "#6a51a3",
+            "#54278f",
+            "#3f007d",
+        ]
+
+        gradient = ", ".join(
+            f"{color} {i / (len(purples) - 1) * 100:.1f}%"
+            for i, color in enumerate(purples)
+        )
+
+        return dmc.Stack(
+            [
+                dmc.Box(
+                    style={
+                        "height": "0.75rem",
+                        "width": "100%",
+                        "borderRadius": "999px",
+                        "background": (
+                            f"linear-gradient(90deg, {gradient})"
+                        ),
+                        "border": "1px solid var(--mantine-color-default-border)"
+                    }
+                ),
+
+                dmc.Group(
+                    [
+                        dmc.Text(
+                            "Lower",
+                            size="xs",
+                            c="dimmed",
+                        ),
+                        dmc.Text(
+                            "Higher",
+                            size="xs",
+                            c="dimmed",
+                        ),
+                    ],
+                    justify="space-between",
+                ),
+            ],
+            gap="xs",
+            w="90%",
+        )
+
     def render_content(self, min_year: int, max_year: int, series_config: list) -> dmc.Stack:
         year_diff = max_year - min_year
         label_interval = 5 if year_diff >= 15 else (3 if year_diff >= 6 else 1)
@@ -104,7 +157,7 @@ class GeoView:
                                             value="raw",
                                             fullWidth=True,
                                             size="sm",
-                                            radius="md",
+                                            radius="lg",
                                             color="blue.6",
                                             withItemsBorders=False,
                                             style={
@@ -112,11 +165,11 @@ class GeoView:
                                             },
                                         ),
                                         shadow="lg",
-                                        radius="md",
+                                        radius="lg",
                                     ),
                                     justify={"base": "center", "md": "flex-end"},
                                     w="100%",
-                                    h="100%"
+                                    h="100%",
                                 ),
                                 span={"base": 12, "md": 4}
                             ),
@@ -125,14 +178,27 @@ class GeoView:
                         mb="sm",
                         gutter="lg"
                     ),
-                    dcc.Graph(
-                        id="geo-map-chart",
-                        responsive=True,
-                        style={"height": "100%", "width": "100%"}
+                    dmc.Stack(
+                        [
+                            dmc.Center(
+                                self._render_purples_legend(),
+                            ),
+                            dcc.Graph(
+                                id="geo-map-chart",
+                                responsive=True,
+                                style={
+                                    "height": "100%",
+                                    "width": "100%",
+                                },
+                            ),
+                            
+                        ],
+                        gap="sm",
+                        style={"flex": 1, "minHeight": 0},
                     ),
                 ], gap="md", m={"base": "sm", "md": "md"}, style={"height": "100%"}),
                 p={"base": "lg", "md": "xl"},
-                h={"base": 450, "md": 650},
+                h={"base": 550, "md": 700},
             ),
 
             dmc.Stack([
