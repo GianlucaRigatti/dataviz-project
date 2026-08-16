@@ -228,38 +228,36 @@ class VolumeView:
                 dmc.Stack([
                     dmc.Title("Vehicle Characteristics in the Latent Space", order=2, fw=900),
                     dmc.Text(
-                        "Each point represents a vehicle configuration, coloured by motor energy category, only the last year of the selected time period filtered is shown for performance reasons.",
+                        "Each point represents a vehicle configuration positioned according to its location in the two-dimensional latent space learned by the autoencoder, "
+                        "coloured by motor energy category. For performance reasons, only the last year of the selected time period filtered is shown.",
                         fs="italic",
                         c="dimmed",
                         size="sm"
                     ),
+                    dmc.Text(
+                        "The latent space provides a compact representation of the technical characteristics of the vehicles in the market. "
+                        "Vehicles that have similar characteristics are expected to appear closer together, whereas separation indicates distinctiveness "
+                        "in their technical attributes."
+                    ),
+                    dmc.Text(
+                        "The resulting distribution provides a visual indication of how different motor energy categories cover the market of passenger cars " \
+                        "from a utilitarian perspective."
+                    ),
                 ], gap="md", mt="md", mb="sm"),
                 dmc.Card(
-                    dmc.Stack(
-                        [
-                            dmc.Text(
-                                "The points are positioned according to the two-dimensional "
-                                "representation learned by the autoencoder. Vehicles with "
-                                "similar characteristics tend to appear closer together, "
-                                "making broad patterns in the different motor energy categories "
-                                "visible without performing any explicit clustering."
-                            ),
-
-                            dcc.Graph(
-                                id="volume-latent-scatter-chart",
-                                figure=initial_latent_scatter_figure,
-                                config={
-                                    "displayModeBar": False,
-                                },
-                                style={
-                                    "width": "100%",
-                                    "height": "500px",
-                                },
-                            ),
-                        ],
-                        gap="md",
-                        m={"base": "sm", "md": "md"},
-                    ),
+                    dmc.Stack([
+                        dcc.Graph(
+                            id="volume-latent-scatter-chart",
+                            figure=initial_latent_scatter_figure,
+                            config={
+                                "displayModeBar": False,
+                            },
+                            style={
+                                "width": "100%",
+                                "height": "500px",
+                            },
+                        ),
+                    ], gap="md", m={"base": "sm", "md": "md"}),
                     p={"base": "lg", "md": "xl"},
                 ),
             ],
