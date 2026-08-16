@@ -336,7 +336,7 @@ class GeoView:
                                                 gap="xs"
                                             ),
                                             dmc.Text(
-                                                "Total Registrations / Available Market Choice",
+                                                "Total Registrations / Available Utilitarian Market Choice",
                                                 fs="italic",
                                                 ta="center",
                                             ),

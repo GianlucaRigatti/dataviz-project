@@ -349,23 +349,13 @@ class VolumeController:
 
     def get_layouts(self) -> tuple[dmc.Stack, dmc.Stack, dmc.Stack]:
 
-        (
-            baseline_factors_data,
-            latent_volume_data,
-            manufacturer_table_data,
-            latent_scatter_figure,
-            series_config,
-        ) = self._get_chart_payload(
-            [self.min_year, self.max_year],
-            self.default_geo,
-        )
-
+        series_config = get_motor_energy_colors()
         content = self.view.render_content(
-            baseline_factors_data,
-            latent_volume_data,
-            manufacturer_table_data,
-            latent_scatter_figure,
-            series_config,
+            initial_factors_data=[],
+            initial_latent_data=[],
+            initial_manufacturer_table_data=[],
+            initial_latent_scatter_figure=go.Figure(),
+            series_config=series_config,
         )
 
         filters_desktop = self.view.render_filters(
@@ -405,7 +395,6 @@ class VolumeController:
             Input("volume-year-slider-mobile", "value"),
             Input("volume-geo-select-desktop", "value"),
             Input("volume-geo-select-mobile", "value"),
-            prevent_initial_call=True,
         )
         def update_chart(year_d, year_m, geo_d, geo_m):
             trigger = ctx.triggered_id

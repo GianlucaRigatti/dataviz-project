@@ -88,7 +88,7 @@ class OverviewView:
                         withLegend=False,
                         curveType="monotone",
                         tickLine="y",
-                        tooltipAnimationDuration=190,
+                        tooltipAnimationDuration=200,
                         lineProps={
                             "isAnimationActive": True,
                             "animationDuration": 200,
@@ -127,7 +127,7 @@ class OverviewView:
                         withLegend=False,
                         curveType="monotone",
                         tickLine="y",
-                        tooltipAnimationDuration=190,
+                        tooltipAnimationDuration=200,
                         lineProps={
                             "isAnimationActive": True,
                             "animationDuration": 200,
@@ -179,7 +179,7 @@ class OverviewView:
                                 gap="xs"
                             ),
                             dmc.Text(
-                                "Total Registrations / Available Market Choice",
+                                "Total Registrations / Available Utilitarian Market Choice",
                                 fs="italic",
                             ),
                         ],
@@ -194,7 +194,7 @@ class OverviewView:
                         withLegend=False,
                         curveType="monotone",
                         tickLine="y",
-                        tooltipAnimationDuration=190,
+                        tooltipAnimationDuration=200,
                         lineProps={
                             "isAnimationActive": True,
                             "animationDuration": 200,

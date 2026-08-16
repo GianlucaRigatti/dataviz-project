@@ -4,22 +4,10 @@ from dash import dcc
 
 class VolumeView:
 
-    def render_content(
-        self,
-        initial_factors_data: list[dict],
-        initial_latent_data: list[dict],
-        initial_manufacturer_table_data: list[dict],
-        initial_latent_scatter_figure,
-        series_config: list[dict],
-    ) -> dmc.Stack:
+    def render_content(self, initial_factors_data: list[dict], initial_latent_data: list[dict], initial_manufacturer_table_data: list[dict], initial_latent_scatter_figure, series_config: list[dict]) -> dmc.Stack:
+        series_names = [s["name"] for s in series_config]
 
-        series_names = [
-            s["name"]
-            for s in series_config
-        ]
-
-        legend = dmc.Group(
-            [
+        legend = dmc.Group([
                 dmc.ChipGroup(
                     [
                         dmc.Chip(
@@ -28,9 +16,7 @@ class VolumeView:
                             size="sm",
                             variant="light",
                             color=s["color"].split(".")[0],
-                            icon=DashIconify(
-                                icon="tabler:circle-filled"
-                            ),
+                            icon=DashIconify(icon="tabler:circle-filled"),
                         )
                         for s in series_config
                     ],
@@ -38,111 +24,138 @@ class VolumeView:
                     multiple=True,
                     value=series_names,
                 )
-            ],
-            justify="right",
-            mb="sm",
-            gap="xs",
-        )
+            ], justify="right", mb="sm", gap="xs")
 
         return dmc.Stack(
             [
-                dmc.Stack(
-                    [
+                dmc.Stack([
+                    dmc.Title("Normalisation Factors", order=2, fw=900),
+                    dmc.Text([
+                        "The normalisation factors provide a measure of the variety of vehicles available within each motor energy category. "
+                    ]),
+                    dmc.Text([
+                        "The ",
+                        dmc.Text("Baseline Normalisation Factor", span=True, fw=800),
+                        " measures the number of unique vehicle configurations available within each motor energy category for a given year."
+                        "A configuration is considered different when its model name, engine capacity, or engine power differs, meaning that the measure captures "
+                        "differences in the main technical characteristics and model design of the vehicles available, while excluding minor equipment variations. "
+                        "This gives an indication of how much variety is available to consumers, independently of how many vehicles were actually registered.",
+                    ]),
+                    dmc.Text([
+                        "The ",
+                        dmc.Text("Autoencoder Normalisation Factor", span=True, fw=800),
+                        " measures instead the diversity of vehicles based solely on their technical characteristics. "
+                        "Rather than counting distinct configurations, it measures how registrations are distributed across the active regions of the autoencoder's "
+                        "latent space, providing an indication of the diversity of vehicle characteristics. "
+                        "In simple terms, given an autoencoder learns to compress information, it shows how hard it was for the model to compress physical characteristics "
+                        "relative to a specific motor energy type, the harder it was for the model, the more spread out the points, the more market choice is actually "
+                        "available to the consumer from a utilitarian perspective. "
+                    ]),
+                ], gap="md", mb="sm"),
+
+                dmc.Card(
+                    dmc.Stack([
                         dmc.Title(
-                            "Baseline & Autoencoder Normalisation Factors",
-                            order=2,
-                            fw=1000,
+                            [
+                                "Baseline Normalisation Factor",
+                                dmc.Text(
+                                    "Count of Unique Vehicle Configurations (Model + Engine Capacity + Engine Power)",
+                                    fs="italic",
+                                ),
+                            ],
+                            order=4,
+                            fw=800
                         ),
-                        dmc.Text(
-                            "The Baseline Normalisation Factor shows how many different vehicle configurations are available within each motor energy category. A configuration is considered different when its model name, engine capacity, or engine power changes. This gives an indication of how much variety is available to consumers, independently of how many vehicles were actually registered. " \
+                        legend,
+                        dmc.LineChart(
+                            id="volume-timeseries-factors-chart",
+                            h=200,
+                            dataKey="year",
+                            data=initial_factors_data,
+                            series=series_config,
+                            withLegend=False,
+                            curveType="monotone",
+                            tickLine="y",
+                            tooltipAnimationDuration=200,
+                            lineProps={
+                                "isAnimationActive": True,
+                                "animationDuration": 200,
+                                "animationEasing": "ease",
+                                "animationBegin": 100,
+                            },
+                            strokeWidth=3,
+                            dotProps={"r": 4},
+                            activeDotProps={
+                                "r": 6,
+                                "strokeWidth": 1,
+                                "fill": "var(--mantine-color-body)",
+                            },
                         ),
-                        dmc.Text(
-                            "The Autoencoder Normalisation Factor looks at the same registrations from a different perspective. Instead of counting distinct configurations, it measures how many registrations are represented by each active area of the autoencoder's latent space. In simple terms, given an autoencoder learns to compress information, it shows us how hard it was for the model to compress physical characteristics relative to a specific motor energy type, the harder it was for the model, the more spread out the points, the more market choice is actually available to the consumer from a utilitarian perspective."
+
+                        dmc.Stack(
+                            [
+                                dmc.Group(
+                                    [
+                                        dmc.Title("Autoencoder Normalisation Factor", order=4, fw=800),
+                                        dmc.Popover(
+                                            [
+                                                dmc.PopoverTarget(
+                                                    DashIconify(
+                                                        icon="tabler:info-square-rounded", 
+                                                        width=20,
+                                                        style={"cursor": "pointer", "color": "var(--mantine-color-dimmed)"}
+                                                    )
+                                                ),
+                                                dmc.PopoverDropdown(
+                                                    dmc.Text(
+                                                        "The 'Alternative/Other' category may be omitted due to insufficient data for model training.",
+                                                        size="sm"
+                                                    ),
+                                                    style={
+                                                        "backgroundColor": "light-dark(white, var(--mantine-color-dark-8))",
+                                                    }
+                                                ),
+                                            ],
+                                            width=250,
+                                            position="bottom",
+                                            withArrow=True,
+                                            shadow="lg",
+                                        )
+                                    ],
+                                    gap="xs"
+                                ),
+                                dmc.Text(
+                                    "Registrations per Active Latent-Space Cell",
+                                    fs="italic",
+                                ),
+                            ],
+                            gap=0,
                         ),
-                    ],
-                    gap="md",
-                    mb="sm",
-                ),
-
-                dmc.Card(
-                    dmc.Stack(
-                        [
-                            dmc.Title(
-                                [
-                                    "Baseline Normalisation Factor",
-                                    dmc.Text(
-                                        "Count of Unique Consumer Model Choices "
-                                        "(Name + Capacity + Power)",
-                                        fs="italic",
-                                    ),
-                                ],
-                                order=3,
-                            ),
-
-                            legend,
-
-                            dmc.LineChart(
-                                id="volume-timeseries-factors-chart",
-                                h=300,
-                                dataKey="year",
-                                data=initial_factors_data,
-                                series=series_config,
-                                withLegend=False,
-                                curveType="monotone",
-                                tickLine="y",
-                                tooltipAnimationDuration=190,
-                                strokeWidth=3,
-                                dotProps={"r": 4},
-                                activeDotProps={
-                                    "r": 6,
-                                    "strokeWidth": 1,
-                                    "fill": "var(--mantine-color-body)",
-                                },
-                            ),
-                        ],
-                        gap="md",
-                        m={"base": "sm", "md": "md"},
-                    ),
-                    p={"base": "lg", "md": "xl"},
-                ),
-
-                dmc.Card(
-                    dmc.Stack(
-                        [
-                            dmc.Title(
-                                [
-                                    "Autoencoder Normalisation Factor",
-                                    dmc.Text(
-                                        "Registrations per Active Latent-Space Cell",
-                                        fs="italic",
-                                    ),
-                                ],
-                                order=3,
-                            ),
-
-
-                            dmc.LineChart(
-                                id="volume-timeseries-latent-volume-chart",
-                                h=300,
-                                dataKey="year",
-                                data=initial_latent_data,
-                                series=series_config,
-                                withLegend=False,
-                                curveType="monotone",
-                                tickLine="y",
-                                tooltipAnimationDuration=190,
-                                strokeWidth=3,
-                                dotProps={"r": 4},
-                                activeDotProps={
-                                    "r": 6,
-                                    "strokeWidth": 1,
-                                    "fill": "var(--mantine-color-body)",
-                                },
-                            ),
-                        ],
-                        gap="md",
-                        m={"base": "sm", "md": "md"},
-                    ),
+                        dmc.LineChart(
+                            id="volume-timeseries-latent-volume-chart",
+                            h=200,
+                            dataKey="year",
+                            data=initial_latent_data,
+                            series=series_config,
+                            withLegend=False,
+                            curveType="monotone",
+                            tickLine="y",
+                            tooltipAnimationDuration=200,
+                            lineProps={
+                                "isAnimationActive": True,
+                                "animationDuration": 200,
+                                "animationEasing": "ease",
+                                "animationBegin": 100,
+                            },
+                            strokeWidth=3,
+                            dotProps={"r": 4},
+                            activeDotProps={
+                                "r": 6,
+                                "strokeWidth": 1,
+                                "fill": "var(--mantine-color-body)",
+                            },
+                        ),
+                    ], gap="md", m={"base": "sm", "md": "md"}),
                     p={"base": "lg", "md": "xl"},
                 ),
 
