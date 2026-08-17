@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="dashboard/assets/favicon-logo.png" height=128 width="auto" />
+<img src="assets/favicon-logo.png" height=128 width="auto" />
 <h1 style="font-weight: 900;">About Car Market Trends</h1>
 
 Developed by Gianluca Rigatti and Giuseppe Screnci for the *Data Visualisation Lab* course.
@@ -24,6 +24,14 @@ The project includes the data preprocessing and validation steps applied to the 
 
 The central question guiding our analysis is:
 >"Is the observed increase in electrified vehicles driven by genuine growth in demand, national incentives and taxation rules, or is it largely a consequence of the decline in petrol and diesel vehicle offerings?"
+
+<div align="center">
+
+  <img src="assets/overview-desktop.png" width="68%" alt="Dashboard desktop interface">
+  &nbsp;&nbsp;&nbsp;
+  <img src="assets/overview-mobile.png" width="20%" alt="Dashboard mobile interface">
+
+</div>
 
 > [!TIP]
 > **🚀 TL;DR - Run with Docker**

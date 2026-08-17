@@ -1,6 +1,6 @@
 app_name: "About Car Market Trends"
 short_app_name: "ACMT"
-debug: true
+debug: false
 server:
   host: "0.0.0.0"
   port: 8050
