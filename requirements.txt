@@ -12,9 +12,6 @@ plotly
 nbformat
 dash
 pyyaml
-# dash-ag-grid
 dash-mantine-components
 dash-iconify
 pycountry
-pydeck
-dash-deck
