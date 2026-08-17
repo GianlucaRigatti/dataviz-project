@@ -25,6 +25,7 @@ The project includes the data preprocessing and validation steps applied to the 
 The central question guiding our analysis is:
 >"Is the observed increase in electrified vehicles driven by genuine growth in demand, national incentives and taxation rules, or is it largely a consequence of the decline in petrol and diesel vehicle offerings?"
 
+<br>
 <div align="center">
 
   <img src="assets/overview-desktop.png" width="68%" alt="Dashboard desktop interface">
@@ -32,6 +33,7 @@ The central question guiding our analysis is:
   <img src="assets/overview-mobile.png" width="20%" alt="Dashboard mobile interface">
 
 </div>
+<br>
 
 > [!TIP]
 > **🚀 TL;DR - Run with Docker**
