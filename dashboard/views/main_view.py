@@ -61,7 +61,7 @@ class MainView:
                                             position="bottom",
                                             withArrow=True,
                                             shadow="lg",
-                                            width=250,
+                                            width=300,
                                         ),
                                         
                                         # GitHub and Theme toggles

@@ -167,11 +167,12 @@ class VolumeController:
             )
         return result
 
-    def _get_latent_scatter_figure(self, years: list[int], region: str, theme: str = "light") -> go.Figure:
+    def _get_latent_scatter_figure(self, years: list[int], region: str, scatter_year: int | str, theme: str = "light") -> go.Figure:
         if not years or not region:
             return go.Figure()
 
         min_y, max_y = years
+        scatter_year = int(scatter_year)
 
         if region == "EU27_2020":
             filtered = self.latent_df[
@@ -188,21 +189,37 @@ class VolumeController:
         if filtered.empty:
             return go.Figure()
 
+        points = filtered[
+            filtered["TIME_PERIOD"] == scatter_year
+        ].copy()
+
+        if points.empty:
+            return go.Figure()
+
+
         fig = go.Figure()
+        color_map = get_motor_energy_plotly_colors()
 
         for series in get_motor_energy_colors():
 
             motor_energy = series["name"]
-            points = filtered[(filtered["Motor energy"] == motor_energy) & (filtered["TIME_PERIOD"] == max_y)]
-            if points.empty:
+
+            energy_points = points[
+                points["Motor energy"] == motor_energy
+            ]
+
+            if energy_points.empty:
                 continue
 
-            color_map = get_motor_energy_plotly_colors()
-            color = color_map.get(motor_energy, "#868E96")
+            color = color_map.get(
+                motor_energy,
+                "#868E96",
+            )
+
             fig.add_trace(
                 go.Scattergl(
-                    x=points["z_1"],
-                    y=points["z_2"],
+                    x=energy_points["z_1"],
+                    y=energy_points["z_2"],
                     mode="markers",
                     name=motor_energy,
                     marker={
@@ -210,7 +227,7 @@ class VolumeController:
                         "size": 8,
                         "opacity": 0.6,
                     },
-                    customdata=points[
+                    customdata=energy_points[
                         [
                             "TIME_PERIOD",
                             "registrations",
@@ -253,7 +270,7 @@ class VolumeController:
 
         return fig
 
-    def _get_chart_payload(self, years: list[int], region: str, theme: str = "light") -> tuple[list[dict], list[dict], list[dict], go.Figure, list[dict]]:
+    def _get_chart_payload(self, years: list[int], region: str) -> tuple[list[dict], list[dict], list[dict]]:
         if not years or not region:
             return [], [], [], []
 
@@ -340,15 +357,11 @@ class VolumeController:
             latent_normalization_chart_data = []
 
         manufacturer_table_data = self._get_manufacturer_table_data(years, region)
-        latent_scatter_figure = self._get_latent_scatter_figure(years, region, theme)
-        series_config = get_motor_energy_colors()
 
         return (
             baseline_factors_data,
             latent_normalization_chart_data,
-            manufacturer_table_data,
-            latent_scatter_figure,
-            series_config,
+            manufacturer_table_data
         )
 
     def get_layouts(self) -> tuple[dmc.Stack, dmc.Stack, dmc.Stack]:
@@ -387,6 +400,46 @@ class VolumeController:
     def _register_callbacks(self):
 
         @callback(
+            Output("volume-scatter-year-select", "data"),
+            Output("volume-scatter-year-select", "value"),
+            Input("volume-year-slider-desktop", "value"),
+            State("volume-scatter-year-select", "value"),
+        )
+        def update_scatter_year_options(slider_range, current_select_value):
+            if not slider_range:
+                return [], None
+
+            start_year, end_year = slider_range
+
+            options = [
+                {
+                    "label": str(year),
+                    "value": str(year),
+                }
+                for year in range(
+                    start_year,
+                    end_year + 1,
+                )
+            ]
+
+            if current_select_value is None:
+                new_value = str(end_year)
+            else:
+                try:
+                    current_year = int(current_select_value)
+                except (TypeError, ValueError):
+                    current_year = end_year
+
+                current_year = max(
+                    start_year,
+                    min(end_year, current_year),
+                )
+
+                new_value = str(current_year)
+
+            return options, new_value
+
+        @callback(
             Output("volume-latent-scatter-chart", "figure", allow_duplicate=True),
             Input("volume-scatter-filter", "value"),
             State("volume-latent-scatter-chart", "figure"),
@@ -406,10 +459,48 @@ class VolumeController:
             return figure
 
         @callback(
+            Output("volume-latent-scatter-chart", "figure"),
+            Input("volume-year-slider-desktop", "value"),
+            Input("volume-geo-select-desktop", "value"),
+            Input("volume-scatter-year-select", "value"),
+            Input("color-scheme-switch", "computedColorScheme"),
+        )
+        def update_scatter(years, region, scatter_selected_year, theme_state):
+            if not years or not region:
+                return go.Figure()
+
+            min_y, max_y = years
+
+            if scatter_selected_year is None:
+                scatter_year = max_y
+            else:
+                try:
+                    scatter_year = int(scatter_selected_year)
+                except (TypeError, ValueError):
+                    scatter_year = max_y
+
+            scatter_year = max(
+                min_y,
+                min(max_y, scatter_year),
+            )
+
+            theme = (
+                "dark"
+                if theme_state == "dark"
+                else "light"
+            )
+
+            return self._get_latent_scatter_figure(
+                years=years,
+                region=region,
+                scatter_year=scatter_year,
+                theme=theme,
+            )
+
+        @callback(
             Output("volume-timeseries-factors-chart", "data"),
             Output("volume-timeseries-latent-volume-chart", "data"),
             Output("volume-manufacturer-table", "children"),
-            Output("volume-latent-scatter-chart", "figure"),
             Output("volume-year-slider-desktop", "value"),
             Output("volume-year-slider-mobile", "value"),
             Output("volume-geo-select-desktop", "value"),
@@ -418,14 +509,21 @@ class VolumeController:
             Input("volume-year-slider-mobile", "value"),
             Input("volume-geo-select-desktop", "value"),
             Input("volume-geo-select-mobile", "value"),
-            Input("color-scheme-switch", "computedColorScheme"),
         )
-        def update_chart(year_d, year_m, geo_d, geo_m, theme_state):
+        def update_chart(year_d, year_m, geo_d, geo_m):
             trigger = ctx.triggered_id
-            current_theme = ("dark" if theme_state == "dark" else "light")
 
-            if trigger == "volume-year-slider-desktop":
+            # Initial page load
+            if trigger is None:
+                active_years = year_d
+                active_geo = geo_d
 
+                out_year_d = dash.no_update
+                out_year_m = dash.no_update
+                out_geo_d = dash.no_update
+                out_geo_m = dash.no_update
+
+            elif trigger == "volume-year-slider-desktop":
                 active_years = year_d
                 active_geo = geo_d
 
@@ -436,7 +534,6 @@ class VolumeController:
                 out_geo_m = dash.no_update
 
             elif trigger == "volume-year-slider-mobile":
-
                 active_years = year_m
                 active_geo = geo_m
 
@@ -447,7 +544,6 @@ class VolumeController:
                 out_geo_m = dash.no_update
 
             elif trigger == "volume-geo-select-desktop":
-
                 active_years = year_d
                 active_geo = geo_d
 
@@ -458,7 +554,6 @@ class VolumeController:
                 out_geo_m = geo_d
 
             elif trigger == "volume-geo-select-mobile":
-
                 active_years = year_m
                 active_geo = geo_m
 
@@ -468,47 +563,32 @@ class VolumeController:
                 out_geo_d = geo_m
                 out_geo_m = dash.no_update
 
-            elif trigger == "color-scheme-switch":
-
-                active_years = year_d if year_d is not None else year_m
-                active_geo = geo_d if geo_d is not None else geo_m
-
-                out_year_d = dash.no_update
-                out_year_m = dash.no_update
-                out_geo_d = dash.no_update
-                out_geo_m = dash.no_update
-
             else:
-                return [dash.no_update] * 8
+                return [dash.no_update] * 7
 
             if not active_years or not active_geo:
-                return [dash.no_update] * 8
+                return [dash.no_update] * 7
 
             (
                 baseline_factors_data,
                 latent_volume_data,
                 manufacturer_table_data,
-                latent_scatter_figure,
-                _,
             ) = self._get_chart_payload(
                 active_years,
                 active_geo,
-                current_theme
             )
 
-            baseline_factors_data = (
-                round_data_to_two_decimals(
-                    baseline_factors_data
-                )
+            baseline_factors_data = round_data_to_two_decimals(
+                baseline_factors_data
             )
 
-            manufacturer_table = self.view.render_manufacturer_table(
-                manufacturer_table_data
+            latent_volume_data = round_data_to_two_decimals(
+                latent_volume_data
             )
 
-            latent_volume_data = (
-                round_data_to_two_decimals(
-                    latent_volume_data
+            manufacturer_table = (
+                self.view.render_manufacturer_table(
+                    manufacturer_table_data
                 )
             )
 
@@ -516,7 +596,6 @@ class VolumeController:
                 baseline_factors_data,
                 latent_volume_data,
                 manufacturer_table,
-                latent_scatter_figure,
                 out_year_d,
                 out_year_m,
                 out_geo_d,

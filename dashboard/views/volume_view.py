@@ -248,7 +248,7 @@ class VolumeView:
                     dmc.Title("Vehicle Characteristics in the Latent Space", order=2, fw=900),
                     dmc.Text(
                         "Each point represents a vehicle configuration positioned according to its location in the two-dimensional latent space learned by the autoencoder, "
-                        "coloured by motor energy category. For performance reasons, only the last year of the selected time period filter is shown.",
+                        "coloured by motor energy category. For performance reasons, only the one year (within the selected time period filter) is shown at a time.",
                         fs="italic",
                         c="dimmed",
                         size="sm"
@@ -266,6 +266,19 @@ class VolumeView:
                 dmc.Card(
                     dmc.Stack([
                         dmc.Group([
+                            dmc.Select(
+                                id="volume-scatter-year-select",
+                                data=[],
+                                value=None,
+                                w=150,
+                                allowDeselect=False,
+                                searchable=False,
+                                clearable=False,
+                                comboboxProps={"transitionProps": {"transition": "pop", "duration": 200}, "shadow": "sm"},
+                                leftSectionPointerEvents="none",
+                                leftSection=DashIconify(icon="tabler:calendar-stats"),
+                                variant="filled",
+                            ),
                             dmc.Popover(
                                 [
                                     dmc.PopoverTarget(
@@ -290,7 +303,7 @@ class VolumeView:
                                 withArrow=True,
                                 shadow="lg",
                             ),
-                        ], justify="right"),
+                        ], justify="right", gap="xs"),
                         legend_scatter,
                         dcc.Graph(
                             id="volume-latent-scatter-chart",
