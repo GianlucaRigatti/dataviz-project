@@ -51,6 +51,7 @@ The central question guiding our analysis is:
 
 ```text
 .
+├── 📂 assets/              # Assets for the repo
 ├── 📂 dashboard/           # Source code for the dashboard
 │   └── 📄 README.md
 ├── 📂 data/                # Raw datasets
