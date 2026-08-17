@@ -1,6 +1,7 @@
-# European Passenger Car Market
-
 <div align="center">
+
+<img src="dashboard/assets/favicon.svg" height=100 width="auto" />
+<h1 style="font-weight: 900;">About Car Market Trends</h1>
 
 Developed by Gianluca Rigatti and Giuseppe Screnci for the *Data Visualisation Lab* course.
 
@@ -15,7 +16,7 @@ Developed by Gianluca Rigatti and Giuseppe Screnci for the *Data Visualisation L
 
 </div>
 
-## 🌱🚗 Overview
+## 🌱🚗 About the Project
 
 This project aims to develop a data visualisation solution for exploring the evolution of new passenger car registrations in Europe, with a particular focus on the transition towards more sustainable power train technologies.
 
@@ -23,6 +24,17 @@ The project includes the data preprocessing and validation steps applied to the 
 
 The central question guiding our analysis is:
 >"Is the observed increase in electrified vehicles driven by genuine growth in demand, national incentives and taxation rules, or is it largely a consequence of the decline in petrol and diesel vehicle offerings?"
+
+> [!TIP]
+> **🚀 TL;DR - Run with Docker**
+>
+> ```bash
+> docker build -t my-dashboard .
+> docker run -p 8050:8050 my-dashboard
+> ```
+>
+> Open **http://localhost:8050** in your browser.
+> See [`📄 dashboard/README.md`](dashboard/README.md) for detailed instructions and the Python virtual environment setup.
 
 ## 📂 Repository Structure
 
@@ -35,6 +47,7 @@ The central question guiding our analysis is:
 │   └── 📄 README.md
 ├── 📂 data/                # Raw datasets
 │   └── 📂 cleaned/         # Preprocessed datasets
+├── 📂 docs/                # Deliverables [.pdf]
 ├── 📂 technical_report/    # Preprocessing and analysis scripts
 │   └── 📄 README.md
 └── 📄 README.md
