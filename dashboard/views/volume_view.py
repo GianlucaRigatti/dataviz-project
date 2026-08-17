@@ -26,6 +26,25 @@ class VolumeView:
                 )
             ], justify="right", mb="sm", gap="xs")
 
+        legend_scatter = dmc.Group([
+                        dmc.ChipGroup(
+                            [
+                                dmc.Chip(
+                                    s["name"],
+                                    value=s["name"],
+                                    size="sm",
+                                    variant="light",
+                                    color=s["color"].split(".")[0],
+                                    icon=DashIconify(icon="tabler:circle-filled"),
+                                )
+                                for s in series_config
+                            ],
+                            id="volume-scatter-filter",
+                            multiple=True,
+                            value=series_names,
+                        )
+                    ], justify="right", mb="sm", gap="xs")
+
         return dmc.Stack(
             [
                 dmc.Stack([
@@ -229,7 +248,7 @@ class VolumeView:
                     dmc.Title("Vehicle Characteristics in the Latent Space", order=2, fw=900),
                     dmc.Text(
                         "Each point represents a vehicle configuration positioned according to its location in the two-dimensional latent space learned by the autoencoder, "
-                        "coloured by motor energy category. For performance reasons, only the last year of the selected time period filtered is shown.",
+                        "coloured by motor energy category. For performance reasons, only the last year of the selected time period filter is shown.",
                         fs="italic",
                         c="dimmed",
                         size="sm"
@@ -246,15 +265,40 @@ class VolumeView:
                 ], gap="md", mt="md", mb="sm"),
                 dmc.Card(
                     dmc.Stack([
+                        dmc.Group([
+                            dmc.Popover(
+                                [
+                                    dmc.PopoverTarget(
+                                        DashIconify(
+                                            icon="tabler:info-square-rounded",
+                                            width=20,
+                                            style={"cursor": "pointer", "color": "var(--mantine-color-dimmed)"}
+                                        )
+                                    ),
+                                    dmc.PopoverDropdown(
+                                        dmc.Text(
+                                            "The 'Alternative/Other' category may be omitted due to insufficient registration data.",
+                                            size="sm"
+                                        ),
+                                        style={
+                                            "backgroundColor": "light-dark(white, var(--mantine-color-dark-8))",
+                                        }
+                                    ),
+                                ],
+                                width=250,
+                                position="bottom",
+                                withArrow=True,
+                                shadow="lg",
+                            ),
+                        ], justify="right"),
+                        legend_scatter,
                         dcc.Graph(
                             id="volume-latent-scatter-chart",
                             figure=initial_latent_scatter_figure,
-                            config={
-                                "displayModeBar": False,
-                            },
+                            responsive=True,
                             style={
                                 "width": "100%",
-                                "height": "500px",
+                                "height": "450px",
                             },
                         ),
                     ], gap="md", m={"base": "sm", "md": "md"}),

@@ -1,5 +1,5 @@
 import dash
-from dash import Input, Output, callback, ctx
+from dash import Input, Output, State, callback, ctx
 import dash_mantine_components as dmc
 
 from utils.data_loader import (
@@ -8,6 +8,7 @@ from utils.data_loader import (
     generate_latent_dataframe_pandas,
     get_dataframe,
     get_motor_energy_colors,
+    get_motor_energy_plotly_colors,
     round_data_to_two_decimals,
 )
 
@@ -166,7 +167,7 @@ class VolumeController:
             )
         return result
 
-    def _get_latent_scatter_figure(self, years: list[int], region: str) -> go.Figure:
+    def _get_latent_scatter_figure(self, years: list[int], region: str, theme: str = "light") -> go.Figure:
         if not years or not region:
             return go.Figure()
 
@@ -192,29 +193,12 @@ class VolumeController:
         for series in get_motor_energy_colors():
 
             motor_energy = series["name"]
-
-            points = filtered[
-                (filtered["Motor energy"] == motor_energy) &
-                (filtered["TIME_PERIOD"] == max_y)
-            ]
-
+            points = filtered[(filtered["Motor energy"] == motor_energy) & (filtered["TIME_PERIOD"] == max_y)]
             if points.empty:
                 continue
 
-            color_map = {
-                "red.6": "#fa5252",
-                "blue.6": "#4dabf7",
-                "teal.6": "#20c997",
-                "orange.6": "#fd7e14",
-                "cyan.6": "#15aabf",
-                "gray.6": "#868e96",
-            }
-
-            color = color_map.get(
-                series["color"],
-                "#868e96",
-            )
-
+            color_map = get_motor_energy_plotly_colors()
+            color = color_map.get(motor_energy, "#868E96")
             fig.add_trace(
                 go.Scattergl(
                     x=points["z_1"],
@@ -223,8 +207,8 @@ class VolumeController:
                     name=motor_energy,
                     marker={
                         "color": color,
-                        "size": 5,
-                        "opacity": 0.55,
+                        "size": 8,
+                        "opacity": 0.6,
                     },
                     customdata=points[
                         [
@@ -248,14 +232,12 @@ class VolumeController:
             )
 
         fig.update_layout(
-            template="plotly_dark",
-            height=500,
-            margin={
-                "l": 20,
-                "r": 20,
-                "t": 20,
-                "b": 20,
-            },
+            template=(
+                "mantine_dark"
+                if theme == "dark"
+                else "mantine_light"
+            ),
+            margin=dict(l=0, r=0, t=0, b=0),
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             xaxis={
@@ -266,18 +248,12 @@ class VolumeController:
                 "title": "Latent Dimension 2",
                 "zeroline": False,
             },
-            legend={
-                "orientation": "h",
-                "yanchor": "bottom",
-                "y": 1.02,
-                "xanchor": "right",
-                "x": 1,
-            },
+            showlegend=False,
         )
 
         return fig
 
-    def _get_chart_payload(self, years: list[int], region: str) -> tuple[list[dict], list[dict], list[dict], go.Figure, list[dict]]:
+    def _get_chart_payload(self, years: list[int], region: str, theme: str = "light") -> tuple[list[dict], list[dict], list[dict], go.Figure, list[dict]]:
         if not years or not region:
             return [], [], [], []
 
@@ -364,7 +340,7 @@ class VolumeController:
             latent_normalization_chart_data = []
 
         manufacturer_table_data = self._get_manufacturer_table_data(years, region)
-        latent_scatter_figure = self._get_latent_scatter_figure(years, region)
+        latent_scatter_figure = self._get_latent_scatter_figure(years, region, theme)
         series_config = get_motor_energy_colors()
 
         return (
@@ -411,6 +387,25 @@ class VolumeController:
     def _register_callbacks(self):
 
         @callback(
+            Output("volume-latent-scatter-chart", "figure", allow_duplicate=True),
+            Input("volume-scatter-filter", "value"),
+            State("volume-latent-scatter-chart", "figure"),
+            prevent_initial_call=True,
+        )
+        def update_scatter_visibility(selected_series, figure):
+            if not figure:
+                return dash.no_update
+
+            selected_series = set(selected_series or [])
+
+            for trace in figure["data"]:
+                trace["visible"] = (
+                    trace.get("name") in selected_series
+                )
+
+            return figure
+
+        @callback(
             Output("volume-timeseries-factors-chart", "data"),
             Output("volume-timeseries-latent-volume-chart", "data"),
             Output("volume-manufacturer-table", "children"),
@@ -423,9 +418,11 @@ class VolumeController:
             Input("volume-year-slider-mobile", "value"),
             Input("volume-geo-select-desktop", "value"),
             Input("volume-geo-select-mobile", "value"),
+            Input("color-scheme-switch", "computedColorScheme"),
         )
-        def update_chart(year_d, year_m, geo_d, geo_m):
+        def update_chart(year_d, year_m, geo_d, geo_m, theme_state):
             trigger = ctx.triggered_id
+            current_theme = ("dark" if theme_state == "dark" else "light")
 
             if trigger == "volume-year-slider-desktop":
 
@@ -471,6 +468,16 @@ class VolumeController:
                 out_geo_d = geo_m
                 out_geo_m = dash.no_update
 
+            elif trigger == "color-scheme-switch":
+
+                active_years = year_d if year_d is not None else year_m
+                active_geo = geo_d if geo_d is not None else geo_m
+
+                out_year_d = dash.no_update
+                out_year_m = dash.no_update
+                out_geo_d = dash.no_update
+                out_geo_m = dash.no_update
+
             else:
                 return [dash.no_update] * 8
 
@@ -486,6 +493,7 @@ class VolumeController:
             ) = self._get_chart_payload(
                 active_years,
                 active_geo,
+                current_theme
             )
 
             baseline_factors_data = (
