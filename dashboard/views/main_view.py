@@ -50,6 +50,9 @@ class MainView:
                                                 ),
                                                 dmc.PopoverDropdown(
                                                     dmc.Stack(id="filters-controls-mobile"),
+                                                    style={
+                                                        "backgroundColor": "light-dark(white, var(--mantine-color-dark-8))",
+                                                    },
                                                     p="xs",
                                                     pt="lg",
                                                     pb="lg",
@@ -57,7 +60,8 @@ class MainView:
                                             ],
                                             position="bottom",
                                             withArrow=True,
-                                            shadow="md",
+                                            shadow="lg",
+                                            width=250,
                                         ),
                                         
                                         # GitHub and Theme toggles
