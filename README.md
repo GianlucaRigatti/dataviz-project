@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="dashboard/assets/favicon.svg" height=100 width="auto" />
+<img src="dashboard/assets/favicon-logo.png" height=128 width="auto" />
 <h1 style="font-weight: 900;">About Car Market Trends</h1>
 
 Developed by Gianluca Rigatti and Giuseppe Screnci for the *Data Visualisation Lab* course.
