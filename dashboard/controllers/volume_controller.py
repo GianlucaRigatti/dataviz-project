@@ -1,5 +1,5 @@
 import dash
-from dash import Input, Output, State, callback, ctx
+from dash import Input, Output, State, callback, ctx, clientside_callback
 import dash_mantine_components as dmc
 
 from utils.data_loader import (
@@ -399,6 +399,19 @@ class VolumeController:
 
     def _register_callbacks(self):
 
+        clientside_callback(
+            """
+            function(loadingState) {
+                return Boolean(
+                    loadingState &&
+                    loadingState.is_loading
+                );
+            }
+            """,
+            Output("volume-latent-scatter-loading-overlay", "visible"),
+            Input("volume-latent-scatter-chart", "loading_state"),
+        )
+
         @callback(
             Output("volume-scatter-year-select", "data"),
             Output("volume-scatter-year-select", "value"),
@@ -443,6 +456,7 @@ class VolumeController:
             Output("volume-latent-scatter-chart", "figure", allow_duplicate=True),
             Input("volume-scatter-filter", "value"),
             State("volume-latent-scatter-chart", "figure"),
+            running=[(Output("volume-latent-scatter-loading-overlay", "visible"), True, False)],
             prevent_initial_call=True,
         )
         def update_scatter_visibility(selected_series, figure):
@@ -464,6 +478,7 @@ class VolumeController:
             Input("volume-geo-select-desktop", "value"),
             Input("volume-scatter-year-select", "value"),
             Input("color-scheme-switch", "computedColorScheme"),
+            running=[(Output("volume-latent-scatter-loading-overlay", "visible"), True, False)],
         )
         def update_scatter(years, region, scatter_selected_year, theme_state):
             if not years or not region:

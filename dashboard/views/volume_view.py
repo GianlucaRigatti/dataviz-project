@@ -305,15 +305,40 @@ class VolumeView:
                             ),
                         ], justify="right", gap="xs"),
                         legend_scatter,
-                        dcc.Graph(
-                            id="volume-latent-scatter-chart",
-                            figure=initial_latent_scatter_figure,
-                            responsive=True,
+                        dmc.Box(
+                            [
+                                dmc.LoadingOverlay(
+                                    id="volume-latent-scatter-loading-overlay",
+                                    visible=False,
+                                    zIndex=10,
+                                    overlayProps={"blur": 3},
+                                    loaderProps={
+                                        "variant": "custom",
+                                        "children": dmc.Image(
+                                            src="/assets/custom_loadingoverlay.gif",
+                                            h={"base": 100, "md": 150},
+                                            fit="contain",
+                                        ),
+                                    },
+                                ),
+                                dcc.Graph(
+                                    id="volume-latent-scatter-chart",
+                                    figure=initial_latent_scatter_figure,
+                                    responsive=True,
+                                    style={
+                                        "width": "100%",
+                                        "height": "450px",
+                                    },
+                                    config={
+                                        "displayModeBar": False,
+                                    },
+                                ),
+                            ],
+                            pos="relative",
                             style={
                                 "width": "100%",
-                                "height": "450px",
                             },
-                        ),
+                        )
                     ], gap="md", m={"base": "sm", "md": "md"}),
                     p={"base": "lg", "md": "xl"},
                 ),
