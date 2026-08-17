@@ -55,8 +55,8 @@ class VolumeView:
                     dmc.Text([
                         "The ",
                         dmc.Text("Baseline Normalisation Factor", span=True, fw=800),
-                        " measures the number of unique vehicle configurations available within each motor energy category for a given year."
-                        "A configuration is considered different when its model name, engine capacity, or engine power differs, meaning that the measure captures "
+                        " measures the number of unique vehicle configurations available within each motor energy category for a given year. "
+                        "A configuration is considered different when its model name, engine capacity, or engine power differs, meaning that the measure tries to capture "
                         "differences in the main technical characteristics and model design of the vehicles available, while excluding minor equipment variations. "
                         "This gives an indication of how much variety is available to consumers, independently of how many vehicles were actually registered.",
                     ]),
@@ -248,7 +248,7 @@ class VolumeView:
                     dmc.Title("Vehicle Characteristics in the Latent Space", order=2, fw=900),
                     dmc.Text(
                         "Each point represents a vehicle configuration positioned according to its location in the two-dimensional latent space learned by the autoencoder, "
-                        "coloured by motor energy category. For performance reasons, only the one year (within the selected time period filter) is shown at a time.",
+                        "coloured by motor energy category. For performance reasons, only one year (within the selected time period filter) can be shown at a time.",
                         fs="italic",
                         c="dimmed",
                         size="sm"

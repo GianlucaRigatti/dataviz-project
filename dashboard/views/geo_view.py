@@ -214,7 +214,7 @@ class GeoView:
                 dmc.Title("Predominant Motor Energy across European Union Countries", order=2, fw=900),
                 dmc.Text([
                     "These maps show the predominant motor energy category in each country based on total registrations and the two normalised measures. "
-                    "Comparing the maps highlights whether the dominant power train changes when differences in motor energy availability are taken into account."
+                    "Comparing the maps highlights whether the dominant power train changes when each motor energy availability is taken into consideration."
                 ]),
             ], gap="md", mt="md", mb="sm"),
 
@@ -368,9 +368,9 @@ class GeoView:
                     "Differences between the three maps show that the predominant motor energy can change depending on whether we consider "
                     "registrations alone or also account for the range and characteristics of vehicles available. "
                     "This can provide an indication of whether differences in consumer demand are aligned with the range and characteristics of vehicles "
-                    "available in each country. Where the normalised measures diverge substantially from the pattern observed in raw registrations, this may "
-                    "suggest that the existing vehicle offer does not fully reflect the preferences or mobility needs of consumers, highlighting potential "
-                    "structural changes in the composition and availability of vehicles that could help the passenger car market to better meet evolving consumer needs."
+                    "available to purchase in each country. Where the normalised measures diverge substantially from the pattern observed in raw registrations, this may "
+                    "suggest that the existing vehicle offer does not fully reflect the preferences or mobility needs of consumers, highlighting that potential "
+                    "structural changes in the specifications and availability of vehicles could help the passenger car market to better meet evolving consumer needs."
                 ]),
             ], gap="md", mt="sm"),
             

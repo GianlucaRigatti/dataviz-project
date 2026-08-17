@@ -54,7 +54,7 @@ class OverviewView:
                 ], fs="italic", c="dimmed", size="sm", mb="sm"),
                 dmc.Text([
                     "The charts compare the total raw number of registrations extracted from the EEA dataset with the ones obtained through a baseline "
-                    "normalisation and an autoencoder-based normalisation procedure which aim to provide "
+                    "normalisation and an autoencoder-based normalisation procedure, which aim to provide "
                     "a more accurate metric that accounts for the market choice available to the consumer when purchasing a new car."
                 ]),
                 dmc.Text([
